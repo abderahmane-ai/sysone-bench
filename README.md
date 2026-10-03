@@ -27,11 +27,22 @@ number. It found 46 verified directories but only **43** distinct measurements:
 | `tev1-08b` | `tev1-08b-20261002`, `tev1-08b-t4-g1` | the CPU fp32 and T4 fp16 cross-host pair, 0.7629 and 0.7734 |
 | `mini-jev`, `openvons` | two separate runners | byte-identical on all 1240 evaluation decisions |
 
-### Strongest results
+### Reference: the closed API
+
+| model | entry kind | accuracy | notes |
+|---|---|---:|---|
+| **`Jev 1.13.0`** | closed API | **0.9065** | the reference every open model below is measured against; not a panel entry |
+
+Jev is the vendor's hosted model behind `api.typesafe.ai`, so it is not one of the 51 panel
+entries — the panel is open-weights only. It is listed first because it is the number to beat.
+Its 0.9065 comes from the sealed v2.0.0 release below, measured on the same manifest digest and
+1,240 evaluation decisions as every row in the table underneath.
+
+### Strongest open-weights results
 
 | model | params | entry kind | accuracy | notes |
 |---|---:|---|---:|---|
-| `kev-4b` | 4.66B | LoRA + head | **0.8556** | best overall; runs on 1x T4 |
+| `kev-4b` | 4.66B | LoRA + head | **0.8556** | best open model; runs on 1x T4 |
 | `jpt-9b` | 9.65B | LoRA | 0.8548 | needed a 2-GPU shard, 18 GiB |
 | `jet` | 4.66B | LoRA | 0.8524 | letter-logit readout over a scalar scorer |
 | `jevk5` | 4.66B | LoRA | 0.8508 | letter-logit readout |
@@ -41,6 +52,9 @@ number. It found 46 verified directories but only **43** distinct measurements:
 | `neohorse-4b` | 4.66B | head / adapter | 0.8266 | reproduced exactly on a second run |
 | `decision-nox` | 4.66B | head / adapter | 0.8048 | vendor-managed precision |
 | `hopper-g` | 4.66B | LoRA | 0.7911 | matches the vendor's self-reported board score |
+
+The best open model trails the closed reference by 0.0509. The gap to the top three open models
+is 0.0048, so those three are effectively tied at this sample size.
 
 Every row is bf16 on a T4 except `intern-decision-4b`, whose remote code selects its own numerics.
 
