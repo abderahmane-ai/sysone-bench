@@ -29,18 +29,25 @@ number. It found 46 verified directories but only **43** distinct measurements:
 
 ### Strongest results
 
-| model | accuracy | notes |
-|---|---|---|
-| `kev-4b` | 0.8556 | 4B, best overall |
-| `jpt-9b` | 0.8548 | |
-| `jet` | 0.8524 | |
-| `jevk5` | 0.8508 | |
-| `intern-decision-4b` | 0.8460 | |
-| `tev1-4b` | 0.8460 | |
-| `decider-4b` | 0.8411 | |
-| `neohorse-4b` | 0.8266 | |
-| `decision-nox` | 0.8048 | |
-| `hopper-g` | 0.7911 | matches the vendor's self-reported board score |
+| model | params | entry kind | accuracy | notes |
+|---|---:|---|---:|---|
+| `kev-4b` | 4.66B | LoRA + head | **0.8556** | best overall; runs on 1x T4 |
+| `jpt-9b` | 9.65B | LoRA | 0.8548 | needed a 2-GPU shard, 18 GiB |
+| `jet` | 4.66B | LoRA | 0.8524 | letter-logit readout over a scalar scorer |
+| `jevk5` | 4.66B | LoRA | 0.8508 | letter-logit readout |
+| `intern-decision-4b` | 4.66B | full fine-tune | 0.8460 | remote code manages its own precision |
+| `tev1-4b` | 4.66B | full fine-tune | 0.8460 | see the `tev1-08b` CPU/T4 pair below |
+| `decider-4b` | 4.66B | full fine-tune | 0.8411 | eager path, avoids T4 compile stalls |
+| `neohorse-4b` | 4.66B | head / adapter | 0.8266 | reproduced exactly on a second run |
+| `decision-nox` | 4.66B | head / adapter | 0.8048 | vendor-managed precision |
+| `hopper-g` | 4.66B | LoRA | 0.7911 | matches the vendor's self-reported board score |
+
+Every row is bf16 on a T4 except `intern-decision-4b`, whose remote code selects its own numerics.
+
+`tev1-08b` is the only model measured on two hosts, which makes it the one direct read on precision
+cost: **0.7629 on CPU fp32 against 0.7734 on T4 fp16**, a 0.0105 gap on identical bytes and one
+pinned revision. `decider-2b` differed 0.7895 on Kaggle against 0.7927 on Colab, but those runs were
+not byte-identical in configuration, so it is a weaker signal.
 
 Full 43-row table with scoring method and provenance flags:
 [`docs/decision-index-panel-coverage.md`](docs/decision-index-panel-coverage.md).

@@ -32,7 +32,7 @@ Derived by `ops/panel_coverage.py` from finished run directories, not from a han
 Run every artifact through `sha256sum -c` before counting, and fingerprint the evaluation-phase
 answers so identical runs collapse.
 
-| | Count |
+| Measure | Count |
 | :--- | ---: |
 | Run directories verified | 46 |
 | Distinct runner names | 44 |
@@ -62,51 +62,51 @@ row is a measurement of the authors' system.
 
 ### Results
 
-| # | Model | Accuracy | Notes |
+| # | Model | Accuracy | Provenance |
 |---:| :--- | ---: | :--- |
-| 1 | `kev-4b` | 0.8556 |  |
-| 2 | `jpt-9b` | 0.8548 |  |
-| 3 | `jet` | 0.8524 |  |
-| 4 | `jevk5` | 0.8508 |  |
-| 5 | `intern-decision-4b` | 0.8460 |  |
-| 6 | `tev1-4b` | 0.8460 |  |
-| 7 | `decider-4b` | 0.8411 |  |
-| 8 | `neohorse-4b` | 0.8266 |  |
-| 9 | `decision-nox` | 0.8048 |  |
-| 10 | `this-that-12` | 0.8008 |  |
-| 11 | `hopper-g` | 0.7911 |  |
-| 12 | `decider-2b` | 0.7895 |  |
-| 13 | `decision-sol` | 0.7863 |  |
-| 14 | `mini-jev` | 0.7831 |  [technique reimpl.] |
-| 15 | `nimble-v2` | 0.7823 |  [2-GPU shard] |
-| 16 | `intern-decision-2b` | 0.7790 |  |
-| 17 | `tev1-08b` | 0.7734 |  |
-| 18 | `kev-08b` | 0.7726 |  |
-| 19 | `metask` | 0.7710 |  |
-| 20 | `jpt-08b` | 0.7702 |  |
-| 21 | `decision-eos` | 0.7685 |  |
-| 22 | `bosun-17b` | 0.7315 |  |
-| 23 | `intern-decision-08b` | 0.7113 |  |
-| 24 | `decision-kai` | 0.7105 |  |
-| 25 | `gliner-decide` | 0.7065 |  |
-| 26 | `lavoir` | 0.7040 |  |
-| 27 | `bosun-06b` | 0.6976 |  |
-| 28 | `laya` | 0.6863 |  |
-| 29 | `gliner-base` | 0.6363 |  |
-| 30 | `gliner-multi` | 0.5863 |  |
-| 31 | `jobe` | 0.5855 |  [technique reimpl.] |
-| 32 | `decision-lex` | 0.5823 |  |
-| 33 | `lev` | 0.5613 |  |
-| 34 | `verdict` | 0.5532 |  |
-| 35 | `gliner-small` | 0.5419 |  |
-| 36 | `mojev` | 0.5395 |  |
-| 37 | `julia-1` | 0.5016 |  |
-| 38 | `lumma-fev-06b` | 0.4815 |  |
-| 39 | `harsha` | 0.4339 |  [technique reimpl.] |
-| 40 | `lumma-fev-01b` | 0.4194 |  |
-| 41 | `lfm2600` | 0.3855 |  |
-| 42 | `lfm350` | 0.3669 |  |
-| 43 | `pngwn` | 0.2734 |  |
+| 1 | `kev-4b` | 0.8556 | vendor readout |
+| 2 | `jpt-9b` | 0.8548 | vendor readout |
+| 3 | `jet` | 0.8524 | vendor readout |
+| 4 | `jevk5` | 0.8508 | vendor readout |
+| 5 | `intern-decision-4b` | 0.8460 | vendor readout |
+| 6 | `tev1-4b` | 0.8460 | vendor readout |
+| 7 | `decider-4b` | 0.8411 | vendor readout |
+| 8 | `neohorse-4b` | 0.8266 | vendor readout |
+| 9 | `decision-nox` | 0.8048 | vendor readout |
+| 10 | `this-that-12` | 0.8008 | vendor readout |
+| 11 | `hopper-g` | 0.7911 | vendor readout |
+| 12 | `decider-2b` | 0.7895 | vendor readout |
+| 13 | `decision-sol` | 0.7863 | vendor readout |
+| 14 | `mini-jev` | 0.7831 | technique reimpl. |
+| 15 | `nimble-v2` | 0.7823 | 2-GPU shard |
+| 16 | `intern-decision-2b` | 0.7790 | vendor readout |
+| 17 | `tev1-08b` | 0.7734 | vendor readout |
+| 18 | `kev-08b` | 0.7726 | vendor readout |
+| 19 | `metask` | 0.7710 | vendor readout |
+| 20 | `jpt-08b` | 0.7702 | vendor readout |
+| 21 | `decision-eos` | 0.7685 | vendor readout |
+| 22 | `bosun-17b` | 0.7315 | vendor readout |
+| 23 | `intern-decision-08b` | 0.7113 | vendor readout |
+| 24 | `decision-kai` | 0.7105 | vendor readout |
+| 25 | `gliner-decide` | 0.7065 | vendor readout |
+| 26 | `lavoir` | 0.7040 | vendor readout |
+| 27 | `bosun-06b` | 0.6976 | vendor readout |
+| 28 | `laya` | 0.6863 | vendor readout |
+| 29 | `gliner-base` | 0.6363 | vendor readout |
+| 30 | `gliner-multi` | 0.5863 | vendor readout |
+| 31 | `jobe` | 0.5855 | technique reimpl. |
+| 32 | `decision-lex` | 0.5823 | vendor readout |
+| 33 | `lev` | 0.5613 | vendor readout |
+| 34 | `verdict` | 0.5532 | vendor readout |
+| 35 | `gliner-small` | 0.5419 | vendor readout |
+| 36 | `mojev` | 0.5395 | vendor readout |
+| 37 | `julia-1` | 0.5016 | vendor readout |
+| 38 | `lumma-fev-06b` | 0.4815 | vendor readout |
+| 39 | `harsha` | 0.4339 | technique reimpl. |
+| 40 | `lumma-fev-01b` | 0.4194 | vendor readout |
+| 41 | `lfm2600` | 0.3855 | vendor readout |
+| 42 | `lfm350` | 0.3669 | vendor readout |
+| 43 | `pngwn` | 0.2734 | prompt unresolved |
 
 
 ## The two models whose weights were never published
