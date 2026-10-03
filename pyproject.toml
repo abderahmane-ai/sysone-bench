@@ -14,6 +14,17 @@ dependencies = [
 [project.optional-dependencies]
 build = ["datasets"]
 qwen = ["torch", "transformers"]
+# Vendor SDKs imported lazily by runners/vendor/. They are optional because most adapters need only
+# transformers, and the original v2.0.0 release shipped none of these adapters. A clean checkout
+# that runs the full suite needs all of them: tests/test_vendor_common.py imports each adapter
+# module by path, which resolves their top-level SDK imports.
+vendor = [
+  "gliner2",
+  "gliclass",
+  "thisthat",
+  "llm2jev",
+  "peft",
+]
 dev = ["pytest", "ruff", "mypy"]
 
 [tool.pytest.ini_options]

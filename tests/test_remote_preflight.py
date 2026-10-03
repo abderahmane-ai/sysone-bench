@@ -38,6 +38,8 @@ def approved_snapshot(**overrides: Any) -> dict[str, Any]:
         "cpu_count": 4,
         "cpu_affinity": [0, 1, 2, 3],
         "requested_cpu_ids": [0, 1, 2, 3],
+        "worker_cpuset": [0, 1, 2, 3],
+        "worker_cpus": 4,
         "load1": 2.0,
         "load5": 3.0,
         "memory_available_gib": 16.0,
@@ -323,6 +325,8 @@ def test_preflight_rejects_each_missing_safety_field() -> None:
         "cpu_count",
         "cpu_affinity",
         "requested_cpu_ids",
+        "worker_cpuset",
+        "worker_cpus",
         "load1",
         "load5",
         "memory_available_gib",
@@ -361,7 +365,6 @@ def test_preflight_rejects_each_missing_safety_field() -> None:
 
 def test_preflight_rejects_unsafe_snapshots() -> None:
     cases: list[tuple[dict[str, Any], str]] = [
-        ({"load1": 2.01}, "load1"),
         ({"load1": -0.1}, "load1"),
         ({"load5": 3.01}, "load5"),
         ({"memory_available_gib": 15.99}, "memory"),
@@ -443,6 +446,307 @@ def test_preflight_uses_process_affinity_and_requires_requested_cpus() -> None:
         check(approved_snapshot(cpu_affinity=[4, 5, 6, 7], requested_cpu_ids=[0, 1, 2, 3]))
     with pytest.raises(RuntimeError, match="CPU"):
         check(approved_snapshot(cpu_count=3, cpu_affinity=[0, 1, 2]))
+
+
+def test_preflight_gates_the_requested_worker_cpuset() -> None:
+    # A widened request is accepted when every requested CPU is inside affinity.
+    check(
+        approved_snapshot(
+            cpu_count=12,
+            cpu_affinity=list(range(12)),
+            worker_cpuset=[0, 1, 2, 3, 4, 5, 6, 7],
+            worker_cpus=8,
+            load1=1.0,
+            load5=1.5,
+        )
+    )
+    # A cpuset that is not a run of the lowest CPUs is rejected outright, so every run leaves the
+    # same high CPUs free regardless of how wide the request is.
+    with pytest.raises(RuntimeError, match="lowest CPUs"):
+        check(
+            approved_snapshot(
+                cpu_count=12,
+                cpu_affinity=list(range(12)),
+                worker_cpuset=[0, 1, 2, 3, 8, 9, 10, 11],
+                worker_cpus=8,
+                load1=1.0,
+            )
+        )
+    # Requested CPUs outside process affinity fail closed.
+    with pytest.raises(RuntimeError, match="affinity"):
+        check(
+            approved_snapshot(
+                cpu_count=12,
+                cpu_affinity=list(range(12)),
+                worker_cpuset=[0, 1, 2, 3, 8, 9, 10, 11],
+                worker_cpus=8,
+                load1=1.0,
+            )
+        )
+    # A quota larger than its own cpuset is rejected rather than silently throttled.
+    with pytest.raises(RuntimeError, match="exceeds its cpuset"):
+        check(
+            approved_snapshot(
+                cpu_count=12,
+                cpu_affinity=list(range(12)),
+                worker_cpuset=[0, 1, 2, 3],
+                worker_cpus=8,
+                load1=1.0,
+            )
+        )
+    # One run may never claim the whole host, once the host is large enough to protect.
+    with pytest.raises(RuntimeError, match="host share"):
+        check(
+            approved_snapshot(
+                cpu_count=8,
+                cpu_affinity=list(range(8)),
+                worker_cpuset=list(range(8)),
+                worker_cpus=8,
+                load1=1.0,
+            )
+        )
+    # On a host too small to leave a CPU behind the share cap is skipped; the documented 4-CPU
+    # default is the whole host there, and the prefix, affinity, and quota rules still apply.
+    check(
+        approved_snapshot(
+            cpu_count=4,
+            cpu_affinity=[0, 1, 2, 3],
+            worker_cpuset=[0, 1, 2, 3],
+            worker_cpus=4,
+            load1=1.0,
+            load5=1.0,
+        )
+    )
+    # A malformed or absent request fails closed instead of defaulting to a wide run.
+    with pytest.raises(RuntimeError):
+        check(approved_snapshot(worker_cpuset=[]))
+    with pytest.raises(RuntimeError):
+        check(approved_snapshot(worker_cpus=None))
+    with pytest.raises(RuntimeError):
+        check(approved_snapshot(worker_cpus=True))
+
+
+def test_post_run_gate_ignores_load_left_by_this_runs_own_worker() -> None:
+    # A wide worker's own saturated cpuset is visible to the post-run gate. Its load must not
+    # invalidate a run that completed and produced every required artifact.
+    busy = approved_snapshot(
+        cpu_count=12,
+        cpu_affinity=list(range(12)),
+        worker_cpuset=[0, 1, 2, 3, 4, 5, 6, 7],
+        worker_cpus=8,
+        load1=7.92,
+        load5=7.11,
+        run_path_state="ready",
+        owner_marker_state="ready",
+        owner_marker_valid=True,
+        owner_marker_owner_uid=os.getuid(),
+    )
+    check(busy, allow_owned=True)
+    # Before execution the same load is judged against the worker's own 8-CPU quota, so 7.92 is
+    # inside it and passes: a previous run's residual may not refuse the next one.
+    check(
+        approved_snapshot(
+            cpu_count=12,
+            cpu_affinity=list(range(12)),
+            worker_cpuset=[0, 1, 2, 3, 4, 5, 6, 7],
+            worker_cpus=8,
+            load1=7.92,
+            load5=7.11,
+        )
+    )
+    # Load clearly above that quota is another workload's and is still refused.
+    with pytest.raises(RuntimeError, match="above this worker's own quota"):
+        check(
+            approved_snapshot(
+                cpu_count=12,
+                cpu_affinity=list(range(12)),
+                worker_cpuset=[0, 1, 2, 3, 4, 5, 6, 7],
+                worker_cpus=8,
+                load1=11.5,
+                load5=7.11,
+            )
+        )
+    # The post-run gate still enforces ownership and capacity limits.
+    with pytest.raises(RuntimeError, match="run path"):
+        check(
+            approved_snapshot(
+                cpu_count=12,
+                cpu_affinity=list(range(12)),
+                load1=7.92,
+                load5=7.11,
+                run_path_state="absent",
+            ),
+            allow_owned=True,
+        )
+    with pytest.raises(RuntimeError, match="below 100 GiB"):
+        check(
+            approved_snapshot(
+                cpu_count=12,
+                cpu_affinity=list(range(12)),
+                worker_cpuset=[0, 1, 2, 3, 4, 5, 6, 7],
+                worker_cpus=8,
+                load1=7.92,
+                load5=7.11,
+                disk_available_gib=10.0,
+                run_path_state="ready",
+                owner_marker_state="ready",
+                owner_marker_valid=True,
+                owner_marker_owner_uid=os.getuid(),
+            ),
+            allow_owned=True,
+        )
+
+
+def test_preflight_skips_the_quiet_host_gate_when_the_worker_claims_every_cpu() -> None:
+    # No unclaimed CPUs means there is nothing left to observe, so the excess gate is skipped.
+    check(
+        approved_snapshot(
+            cpu_count=4,
+            cpu_affinity=[0, 1, 2, 3],
+            worker_cpuset=[0, 1, 2, 3],
+            worker_cpus=4,
+            load1=1.0,
+            load5=1.5,
+        )
+    )
+    # On a whole-host worker, any load above its own quota cannot be attributed to anyone else
+    # because there is no one else to run on the host.
+    check(
+        approved_snapshot(
+            cpu_count=4,
+            cpu_affinity=[0, 1, 2, 3],
+            worker_cpuset=[0, 1, 2, 3],
+            worker_cpus=4,
+            load1=3.9,
+            load5=3.0,
+        )
+    )
+    # The five-minute average still rejects a host carrying sustained load.
+    with pytest.raises(RuntimeError, match="load5 per CPU"):
+        check(
+            approved_snapshot(
+                cpu_count=4,
+                cpu_affinity=[0, 1, 2, 3],
+                worker_cpuset=[0, 1, 2, 3],
+                worker_cpus=4,
+                load1=2.5,
+                load5=3.5,
+            )
+        )
+
+
+def test_preflight_requires_unclaimed_cpus_to_be_quiet_for_a_wide_worker() -> None:
+    # 12 CPUs, 8 claimed leaves 4 unclaimed. load1 of 3.0 is inside the worker's own 8-CPU quota,
+    # so it passes; the excess gate only measures what the worker cannot explain itself.
+    check(
+        approved_snapshot(
+            cpu_count=12,
+            cpu_affinity=list(range(12)),
+            worker_cpuset=[0, 1, 2, 3, 4, 5, 6, 7],
+            worker_cpus=8,
+            load1=3.0,
+            load5=3.0,
+        )
+    )
+    # Enough load above the quota to matter on the 4 unclaimed CPUs is another workload.
+    with pytest.raises(RuntimeError, match="above this worker's own quota"):
+        check(
+            approved_snapshot(
+                cpu_count=12,
+                cpu_affinity=list(range(12)),
+                worker_cpuset=[0, 1, 2, 3, 4, 5, 6, 7],
+                worker_cpus=8,
+                load1=10.5,
+                load5=3.0,
+            )
+        )
+    # The same load passes for the default 4-CPU worker, which leaves 8 CPUs unclaimed.
+    check(
+        approved_snapshot(
+            cpu_count=12,
+            cpu_affinity=list(range(12)),
+            worker_cpuset=[0, 1, 2, 3],
+            worker_cpus=4,
+            load1=3.0,
+            load5=3.0,
+        )
+    )
+
+
+def test_sequential_runs_of_the_same_cpuset_do_not_refuse_each_other(monkeypatch) -> None:
+    # Regression: a completed run leaves load on the host for the length of the load-average
+    # window. The next run of the same wide cpuset used to read that residual as another workload
+    # and refuse to start, silently losing the model. Load inside the worker's own quota passes.
+    check(
+        approved_snapshot(
+            cpu_count=12,
+            cpu_affinity=list(range(12)),
+            worker_cpuset=[0, 1, 2, 3, 4, 5, 6, 7],
+            worker_cpus=8,
+            load1=7.99,
+            load5=7.9,
+        )
+    )
+    # With the original default 4-CPU worker the same residual is comfortably inside the quota.
+    check(
+        approved_snapshot(
+            cpu_count=12,
+            cpu_affinity=list(range(12)),
+            worker_cpuset=[0, 1, 2, 3],
+            worker_cpus=4,
+            load1=3.9,
+            load5=3.8,
+        )
+    )
+    # Genuine outside load is still refused once it exceeds the worker's own quota.
+    with pytest.raises(RuntimeError, match="above this worker's own quota"):
+        check(
+            approved_snapshot(
+                cpu_count=12,
+                cpu_affinity=list(range(12)),
+                worker_cpuset=[0, 1, 2, 3],
+                worker_cpus=4,
+                load1=9.0,
+                load5=3.0,
+            )
+        )
+
+
+def test_worker_cpuset_parsing_accepts_docker_forms(monkeypatch: pytest.MonkeyPatch) -> None:
+    cases = {
+        "0-3": (0, 1, 2, 3),
+        "0-7": (0, 1, 2, 3, 4, 5, 6, 7),
+        "0,2,4": (0, 2, 4),
+        "0-3,8": (0, 1, 2, 3, 8),
+        "0 - 3 ": (0, 1, 2, 3),
+        "4,0": (0, 4),
+    }
+    for raw, expected in cases.items():
+        with monkeypatch.context() as patch:
+            patch.setenv("SYSONE_BENCH_WORKER_CPUSET", raw)
+            assert preflight.parse_worker_cpuset() == expected
+
+
+def test_worker_cpuset_parsing_rejects_malformed_values(monkeypatch: pytest.MonkeyPatch) -> None:
+    for raw in ("4-2", "0,,1", "x", "0-", "-3", "0-3-5", "", "   ", "0-3,"):
+        with monkeypatch.context() as patch:
+            patch.setenv("SYSONE_BENCH_WORKER_CPUSET", raw)
+            with pytest.raises(ValueError):
+                preflight.parse_worker_cpuset()
+
+
+def test_worker_cpus_quota_requires_a_positive_integer(monkeypatch: pytest.MonkeyPatch) -> None:
+    with monkeypatch.context() as patch:
+        patch.delenv("SYSONE_BENCH_WORKER_CPUS", raising=False)
+        assert preflight.read_worker_cpus() == preflight.DEFAULT_WORKER_CPUS
+    for raw in ("0", "-1", "abc", "4.5", "", " "):
+        with monkeypatch.context() as patch:
+            patch.setenv("SYSONE_BENCH_WORKER_CPUS", raw)
+            with pytest.raises(ValueError):
+                preflight.read_worker_cpus()
+    with monkeypatch.context() as patch:
+        patch.setenv("SYSONE_BENCH_WORKER_CPUS", "8")
+        assert preflight.read_worker_cpus() == 8
 
 
 def test_preflight_rejects_malformed_snapshots() -> None:
@@ -1212,10 +1516,17 @@ def test_task5_scripts_have_isolation_contract() -> None:
     launcher = LAUNCHER_SCRIPT.read_text(encoding="utf-8")
     cleanup = CLEANUP_SCRIPT.read_text(encoding="utf-8")
     agents = (REMOTE_ROOT / "AGENTS.md").read_text(encoding="utf-8")
-    assert "--cpus=4" in launcher
-    assert "--memory=12g" in launcher
-    assert "--memory-swap=12g" in launcher
-    assert "--cpuset-cpus=0-3" in launcher
+    assert '--cpus="$WORKER_CPUS"' in launcher
+    assert '--memory="$WORKER_MEMORY"' in launcher
+    assert '--memory-swap="$WORKER_MEMORY"' in launcher
+    assert '--cpuset-cpus="$WORKER_CPUSET"' in launcher
+    assert 'WORKER_CPUSET="${SYSONE_BENCH_WORKER_CPUSET:-0-3}"' in launcher
+    assert 'WORKER_CPUS="${SYSONE_BENCH_WORKER_CPUS:-4}"' in launcher
+    assert 'WORKER_MEMORY="${SYSONE_BENCH_WORKER_MEMORY:-12g}"' in launcher
+    # Vendor runner names pass through instead of needing a case arm per model.
+    assert '*) model_arg="$model" ;;' in launcher
+    assert "laya) model_arg=laya ;;" in launcher
+    assert "router) model_arg=laya-router ;;" in launcher
     assert "/var/run/docker.sock" not in launcher
     assert "--publish" not in launcher
     assert "docker rm -f" in cleanup
@@ -1227,5 +1538,30 @@ def test_task5_scripts_have_isolation_contract() -> None:
         "no exposed ports",
         "existing containers",
         "TYPESAFE_API_KEY",
+        "SYSONE_BENCH_WORKER_CPUSET",
+        "SYSONE_BENCH_WORKER_CPUS",
+        "SYSONE_BENCH_WORKER_MEMORY",
+        "MAX_UNCLAIMED_CPU_SHARE",
+        "MAX_WORKER_HOST_SHARE",
     ):
         assert required in agents
+
+
+def test_launcher_passes_vendor_runner_names_through(tmp_path: Path) -> None:
+    # A registered vendor runner name must reach the orchestrator verbatim; only the three original
+    # models are aliased. An empty --model is still a usage error.
+    launcher = LAUNCHER_SCRIPT.read_text(encoding="utf-8")
+    assert "if [[ -z \"$model\" ]]; then" in launcher
+    assert "    *) usage ;;" not in launcher
+
+    copy = tmp_path / "run_open_model.sh"
+    copy.write_text(launcher, encoding="utf-8")
+    copy.chmod(0o755)
+    result = subprocess.run(
+        ["bash", str(copy), "--run-id", "fixture"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 2
+    assert "--model" in result.stderr

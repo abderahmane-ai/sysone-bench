@@ -17,9 +17,25 @@ from typing import Any
 GIB = 1024**3
 MIN_MEMORY_GIB = 16.0
 MIN_DISK_GIB = 100.0
-MAX_LOAD1_PER_CPU = 0.50
+# load5 is a five-minute average, so it still reflects this benchmark's own previous run for minutes
+# after it exits. load1 is gated against the worker's own CPU quota instead, so a completed run's
+# residual cannot refuse the next one. See the load gate in check().
 MAX_LOAD5_PER_CPU = 0.75
+# Default worker pinning for a shared host. Operators may widen the cpuset via
+# SYSONE_BENCH_WORKER_CPUSET only together with SYSONE_BENCH_WORKER_CPUS; both are re-derived here
+# so preflight gates the exact resources the launcher will request.
 REQUIRED_CPU_IDS = (0, 1, 2, 3)
+DEFAULT_WORKER_CPUSET = "0-3"
+DEFAULT_WORKER_CPUS = 4
+# A widened worker must still leave the host majority-idle, so the gate scales with what the worker
+# does NOT claim. This is what stops a wide run from starting on a host that is already busy.
+MAX_UNCLAIMED_CPU_SHARE = 0.5
+# Refuse any request for more than this fraction of the host's visible CPUs, so one run can never
+# claim the whole machine regardless of environment configuration. The cap is skipped on hosts too
+# small to leave a CPU behind: the documented 4-CPU default is 100% of a 4-CPU host, and refusing
+# that would make the gate unusable on small workers for no safety gain.
+MAX_WORKER_HOST_SHARE = 0.75
+MIN_HOST_CPUS_FOR_SHARE_CAP = 8
 # Every default is derived from this file's own location or from the environment, so the
 # same checkout works for any user on any host and no personal path is baked into the code.
 # SYSONE_BENCH_WORKSPACE_ROOT, SYSONE_BENCH_MODEL_CACHE, SYSONE_BENCH_MANIFEST and
@@ -50,6 +66,8 @@ REQUIRED_SNAPSHOT_FIELDS = frozenset(
     {
         "cpu_count",
         "cpu_affinity",
+        "worker_cpuset",
+        "worker_cpus",
         "requested_cpu_ids",
         "load1",
         "load5",
@@ -192,6 +210,52 @@ def read_cpu_affinity() -> tuple[int, ...]:
     return tuple(sorted(values))
 
 
+def parse_worker_cpuset() -> tuple[int, ...]:
+    """Parse the requested worker cpuset from ``SYSONE_BENCH_WORKER_CPUSET``.
+
+    Accepts the same comma- and range-separated forms Docker accepts for ``--cpuset-cpus``, so the
+    value preflight validates is byte-identical to the one the launcher passes to Docker. Parsing
+    lives here rather than in the shell so a malformed value fails the read-only gate instead of
+    reaching a container invocation.
+    """
+    raw = os.environ.get("SYSONE_BENCH_WORKER_CPUSET", DEFAULT_WORKER_CPUSET)
+    if not isinstance(raw, str) or not raw.strip():
+        raise ValueError("SYSONE_BENCH_WORKER_CPUSET must be a non-empty string")
+    cpus: list[int] = []
+    for part in raw.strip().split(","):
+        token = part.strip()
+        if not token:
+            raise ValueError("SYSONE_BENCH_WORKER_CPUSET contains an empty element")
+        if "-" in token:
+            start_text, _, end_text = token.partition("-")
+            if not start_text.strip().isdigit() or not end_text.strip().isdigit():
+                raise ValueError(f"invalid cpuset range: {token!r}")
+            start, end = int(start_text), int(end_text)
+            if end < start:
+                raise ValueError(f"cpuset range is descending: {token!r}")
+            cpus.extend(range(start, end + 1))
+        else:
+            if not token.isdigit():
+                raise ValueError(f"invalid cpuset element: {token!r}")
+            cpus.append(int(token))
+    if not cpus:
+        raise ValueError("SYSONE_BENCH_WORKER_CPUSET resolved to no CPUs")
+    if len(set(cpus)) != len(cpus):
+        raise ValueError("SYSONE_BENCH_WORKER_CPUSET contains duplicates")
+    return tuple(sorted(cpus))
+
+
+def read_worker_cpus() -> int:
+    """Parse ``SYSONE_BENCH_WORKER_CPUS``, the quota the launcher passes to ``docker --cpus``."""
+    raw = os.environ.get("SYSONE_BENCH_WORKER_CPUS", str(DEFAULT_WORKER_CPUS))
+    if not isinstance(raw, str) or not raw.strip().isdigit():
+        raise ValueError("SYSONE_BENCH_WORKER_CPUS must be a positive integer")
+    value = int(raw.strip())
+    if value <= 0:
+        raise ValueError("SYSONE_BENCH_WORKER_CPUS must be a positive integer")
+    return value
+
+
 def _container_state(
     container_name: str | None,
     runner: Callable[..., subprocess.CompletedProcess[str]] | None,
@@ -315,6 +379,15 @@ def collect_snapshot(
     except (OSError, RuntimeError, TypeError, ValueError):
         affinity = ()
         read_errors.append("CPU affinity unavailable")
+    # Captured here so the snapshot always carries the requested shape; a malformed value becomes a
+    # read error rather than an unhandled exception, matching the affinity failure above.
+    try:
+        worker_cpuset = parse_worker_cpuset()
+        worker_cpus = read_worker_cpus()
+    except ValueError:
+        worker_cpuset = ()
+        worker_cpus = None
+        read_errors.append("requested worker CPU configuration is invalid")
     try:
         load1, load5 = read_loadavg(loadavg_path)
     except (OSError, RuntimeError, ValueError):
@@ -373,6 +446,8 @@ def collect_snapshot(
         "cpu_count": len(affinity) if affinity else None,
         "cpu_affinity": list(affinity),
         "requested_cpu_ids": list(REQUIRED_CPU_IDS),
+        "worker_cpuset": list(worker_cpuset),
+        "worker_cpus": worker_cpus,
         "host_cpu_count": os.cpu_count(),
         "load1": load1,
         "load5": load5,
@@ -493,14 +568,53 @@ def check(snapshot: Mapping[str, Any], *, allow_owned: bool = False) -> None:
     try:
         affinity = _ids(snapshot["cpu_affinity"], "cpu_affinity")
         requested = _ids(snapshot["requested_cpu_ids"], "requested_cpu_ids")
+        worker_cpuset = _ids(snapshot["worker_cpuset"], "worker_cpuset")
     except (RuntimeError, TypeError) as error:
         raise _failure(str(error), snapshot) from None
+    worker_cpus = snapshot["worker_cpus"]
+    if isinstance(worker_cpus, bool) or not isinstance(worker_cpus, int) or worker_cpus <= 0:
+        raise _failure("worker_cpus must be a positive integer", snapshot)
     if cpu_count != len(affinity):
         raise _failure("cpu_count does not match process CPU affinity", snapshot)
     if tuple(sorted(requested)) != REQUIRED_CPU_IDS:
         raise _failure("requested CPU IDs must be 0, 1, 2, and 3", snapshot)
-    if cpu_count < len(REQUIRED_CPU_IDS) or not set(REQUIRED_CPU_IDS).issubset(affinity):
-        raise _failure("requested 4 CPUs are not available to the process", snapshot)
+    # Gate the resources the launcher will actually request, not a fixed CPU list. The default
+    # cpuset still has to contain the documented CPUs, but a widened operator request is accepted
+    # only if every requested CPU is inside this process's affinity.
+    if not worker_cpuset or worker_cpus is None:
+        raise _failure("requested worker CPU configuration is invalid", snapshot)
+    if set(worker_cpuset) != set(range(len(worker_cpuset))):
+        raise _failure(
+            f"requested worker cpuset {list(worker_cpuset)} must be the lowest CPUs "
+            f"0-{len(worker_cpuset) - 1} so every run leaves the same high CPUs free",
+            snapshot,
+        )
+    if not set(worker_cpuset).issubset(affinity):
+        raise _failure(
+            "requested worker cpuset is outside process CPU affinity: "
+            f"{list(worker_cpuset)} not within {affinity}",
+            snapshot,
+        )
+    if worker_cpuset == REQUIRED_CPU_IDS and cpu_count < len(REQUIRED_CPU_IDS):
+        raise _failure(
+            f"process CPU affinity does not include the default worker CPUs {list(REQUIRED_CPU_IDS)}",
+            snapshot,
+        )
+    # A wide request may not exceed the host majority, and its quota may not exceed its own cpuset.
+    if (
+        cpu_count >= MIN_HOST_CPUS_FOR_SHARE_CAP
+        and len(worker_cpuset) > cpu_count * MAX_WORKER_HOST_SHARE
+    ):
+        raise _failure(
+            f"requested worker cpuset claims {len(worker_cpuset)} of {cpu_count} CPUs, "
+            f"above the {MAX_WORKER_HOST_SHARE:.0%} host share limit",
+            snapshot,
+        )
+    if worker_cpus > len(worker_cpuset):
+        raise _failure(
+            f"requested worker CPU quota {worker_cpus} exceeds its cpuset size {len(worker_cpuset)}",
+            snapshot,
+        )
     try:
         load1 = _number(snapshot["load1"], "load1")
         load5 = _number(snapshot["load5"], "load5")
@@ -510,10 +624,29 @@ def check(snapshot: Mapping[str, Any], *, allow_owned: bool = False) -> None:
         raise _failure("load1 cannot be negative", snapshot)
     if load5 < 0.0:
         raise _failure("load5 cannot be negative", snapshot)
-    if load1 / cpu_count > MAX_LOAD1_PER_CPU:
-        raise _failure("load1 per CPU exceeds 0.50", snapshot)
-    if load5 / cpu_count > MAX_LOAD5_PER_CPU:
-        raise _failure("load5 per CPU exceeds 0.75", snapshot)
+    # Load gates protect OTHER workloads and therefore belong to the pre-execution gate only. The
+    # post-run gate runs while this run's own worker was still saturating its cpuset, so a wide
+    # worker always observes its own load here; enforcing the same threshold would discard a valid,
+    # complete run. The post-run gate still validates ownership, artifacts, and capacity limits.
+    unclaimed = cpu_count - len(worker_cpuset)
+    if not allow_owned:
+        if load5 / cpu_count > MAX_LOAD5_PER_CPU:
+            raise _failure("load5 per CPU exceeds 0.75", snapshot)
+        # Host load up to this worker's own CPU quota can be caused by this benchmark's previous run
+        # still inside the load-average window, not by another workload, so it is not evidence that
+        # anyone else is being impacted. Only load ABOVE the worker's own quota is attributable to
+        # other workloads, and that excess is what this gate measures. Two sequential runs of the
+        # same cpuset therefore no longer refuse each other.
+        excess = load1 - worker_cpus
+        snapshot["load1_above_worker_quota"] = excess
+        snapshot["worker_cpu_quota"] = worker_cpus
+        if excess > unclaimed * MAX_UNCLAIMED_CPU_SHARE:
+            raise _failure(
+                f"load1 {load1:.2f} is {excess:.2f} above this worker's own quota of {worker_cpus} "
+                f"CPUs, which is more than the {MAX_UNCLAIMED_CPU_SHARE:.0%} share of {unclaimed} "
+                f"unclaimed CPUs; the host is busy outside the worker cpuset",
+                snapshot,
+            )
     try:
         memory = _number(snapshot["memory_available_gib"], "memory_available_gib")
         disk = _number(snapshot["disk_available_gib"], "disk_available_gib")

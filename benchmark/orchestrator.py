@@ -7,12 +7,14 @@ import os
 import random
 import re
 import stat
+import traceback
 import statistics
 import sys
 from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
 from datetime import UTC, datetime
 from functools import partial
+from importlib import import_module
 from pathlib import Path, PurePosixPath
 from time import perf_counter
 from typing import Any, NoReturn, cast
@@ -495,9 +497,74 @@ class DeterministicFakeRunner(BaseRunner):
         }
 
 
+#: Vendor decision models share one adapter base and one normalization layer, so they are registered
+#: by importing their family module lazily and instantiating the runner the name selects. Keeping the
+#: table here means the orchestrator never imports a vendor SDK at module import time.
+_VENDOR_RUNNERS: dict[str, tuple[str, str]] = {
+    "decision-kai": ("runners.vendor.decision1", "DecisionKaiRunner"),
+    "decision-lex": ("runners.vendor.decision1", "DecisionLexRunner"),
+    "decision-eos": ("runners.vendor.decision1", "DecisionEosRunner"),
+    "decision-sol": ("runners.vendor.decision1", "DecisionSolRunner"),
+    "lumma-fev-01b": ("runners.vendor.lumma_fev", "LummaFev01BRunner"),
+    "lumma-fev-06b": ("runners.vendor.lumma_fev", "LummaFev06BRunner"),
+    "bosun-06b": ("runners.vendor.bosun", "Bosun06BRunner"),
+    "bosun-17b": ("runners.vendor.bosun", "Bosun17BRunner"),
+    "gliner-small": ("runners.vendor.gliner", "GlinerSmallRunner"),
+    "gliner-base": ("runners.vendor.gliner", "GlinerBaseRunner"),
+    "gliner-multi": ("runners.vendor.gliner", "GlinerMultiRunner"),
+    "gliner-decide": ("runners.vendor.gliner", "GlinerDecideRunner"),
+    "verdict": ("runners.vendor.gliner", "VerdictRunner"),
+    "metask": ("runners.vendor.optlogit", "MetaskRunner"),
+    "lfm2600": ("runners.vendor.optlogit", "Lfm2600Runner"),
+    "lfm350": ("runners.vendor.optlogit", "Lfm350Runner"),
+    "hopper-g": ("runners.vendor.hopper", "HopperGRunner"),
+    "lev": ("runners.vendor.lev", "LevRunner"),
+    "mini-jev": ("runners.vendor.technique", "MiniJevRunner"),
+    "openvons": ("runners.vendor.technique", "OpenVonsRunner"),
+    "jobe": ("runners.vendor.technique", "JobeRunner"),
+    "harsha": ("runners.vendor.technique", "HarshaRunner"),
+    "pngwn": ("runners.vendor.pngwn", "PngwnRunner"),
+    "jeff": ("runners.vendor.technique", "JeffRunner"),
+    "nimble-v2": ("runners.vendor.nimble", "NimbleV2Runner"),
+    "intern-decision-08b": ("runners.vendor.intern_decision", "InternDecision08BRunner"),
+    "intern-decision-2b": ("runners.vendor.intern_decision", "InternDecision2BRunner"),
+    "this-that-12": ("runners.vendor.thisthat", "ThisThat12Runner"),
+    "jpt-08b": ("runners.vendor.jpt", "Jpt08BRunner"),
+    "jpt-4b": ("runners.vendor.jpt", "Jpt4BRunner"),
+    "jpt-9b": ("runners.vendor.jpt", "Jpt9BRunner"),
+    "decider-4b": ("runners.vendor.decider", "Decider4BRunner"),
+    "decider-2b": ("runners.vendor.decider", "Decider2BRunner"),
+    "jet": ("runners.vendor.jet", "Jet4BRunner"),
+    "kev-08b": ("runners.vendor.kev", "Kev08BRunner"),
+    "kev-4b": ("runners.vendor.kev", "Kev4BRunner"),
+    "kev-9b": ("runners.vendor.kev", "Kev9BRunner"),
+    "jevk5": ("runners.vendor.jevk5", "JevK5Runner"),
+    "neohorse-4b": ("runners.vendor.neohorse", "NeoHorse4BRunner"),
+    "lavoir": ("runners.vendor.lavoir", "LavoirRunner"),
+    "julia-1": ("runners.vendor.julia", "JuliaRunner"),
+    "tev1-08b": ("runners.vendor.tev1", "Tev108BRunner"),
+    "tev1-4b": ("runners.vendor.tev1", "Tev14BRunner"),
+    "decision-nox": ("runners.vendor.decision1", "DecisionNoxRunner"),
+    "decision-lux-9b": ("runners.vendor.decision1", "DecisionLux9BRunner"),
+    "intern-decision-4b": (
+        "runners.vendor.intern_decision",
+        "InternDecision4BRunner",
+    ),
+    "mojev": ("runners.vendor.mojev", "MojevRunner"),
+}
+
+
+def _vendor_runner(name: str) -> BaseRunner:
+    module_name, class_name = _VENDOR_RUNNERS[name]
+    module = import_module(module_name)
+    return cast(BaseRunner, getattr(module, class_name)())
+
+
 def default_runner_factory(name: str) -> BaseRunner:
     if name == "fake":
         return DeterministicFakeRunner()
+    if name in _VENDOR_RUNNERS:
+        return _vendor_runner(name)
     if name == "laya":
         from runners.laya_runner import LayaRunner
 
@@ -1695,6 +1762,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
     except RuntimeError:
         print("run failed: runner execution failed", file=sys.stderr)
+        traceback.print_exc()
         return 1
     except (ImportError, OSError, TypeError, ValueError) as error:
         print(f"run failed: {error}", file=sys.stderr)
