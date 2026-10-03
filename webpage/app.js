@@ -19,9 +19,25 @@ let D = null;
 let state = { filter: "all", sort: "accuracy", model: null, compare: "none" };
 
 /* ------------------------------------------------------------------ load */
+function fail(err) {
+  // Never leave the reader with a blank document. Show the cause, and un-hide every section.
+  console.error(err);
+  document.querySelectorAll(".reveal").forEach((n) => n.classList.add("in", "failed"));
+  const p = A("#leaderboard .band-head p");
+  if (p) {
+    p.innerHTML =
+      `<strong>Data failed to render.</strong> ${String(err && err.message ? err.message : err)} ` +
+      "Every figure on this page is generated from <code>data/results.json</code>; nothing is " +
+      "hard-coded, so the charts stay empty until that file loads.";
+  }
+}
+
+window.addEventListener("error", (e) => fail(e.error || e.message));
+window.addEventListener("unhandledrejection", (e) => fail(e.reason));
+
 fetch("data/results.json")
   .then((r) => {
-    if (!r.ok) throw new Error(`results.json ${r.status}`);
+    if (!r.ok) throw new Error(`results.json responded ${r.status}`);
     return r.json();
   })
   .then((json) => {
@@ -30,11 +46,7 @@ fetch("data/results.json")
     drawAll();
     wire();
   })
-  .catch((err) => {
-    console.error(err);
-    A("#leaderboard .band-head p").textContent =
-      "Could not load data/results.json. The figures on this page are rendered from that file and are not duplicated here on purpose.";
-  });
+  .catch(fail);
 
 /* --------------------------------------------------------------- helpers */
 const rows = () => D.measurements;
@@ -109,7 +121,7 @@ function drawLeaderboard() {
     const y = padT + i * rowH;
     const bw = Math.max(1, x(r.accuracy) - padL);
     const g = el("g", { class: "bar", tabindex: "0" });
-    g.append(el("title")).textContent =
+    g.appendChild(el("title")).textContent =
       `${r.runner} — ${pct(r.accuracy)}%  ·  ${r.model || ""}  ·  ${r.scoring || "vendor readout"}`;
 
     g.append(el("rect", { x: 0, y, width: w, height: rowH, fill: "transparent" }));
@@ -183,7 +195,7 @@ function drawSuites() {
         x: x0, y: y(v), width: Math.max(1, bw - 2), height: Math.max(1, plotH - (y(v) - padT)),
         rx: 2, fill: hues[ri % hues.length], class: "bar",
       });
-      rect.append(el("title")).textContent = `${r.runner} · ${s} · ${pct(v)}%`;
+      rect.appendChild(el("title")).textContent = `${r.runner} · ${s} · ${pct(v)}%`;
       svg.append(rect);
     });
     const tick = el("text", {
@@ -204,43 +216,179 @@ function drawSuites() {
   });
 }
 
+/* --------------------------------------------------------- ranked list */
+function drawCards() {
+  const grid = A("#model-grid");
+  if (!grid) return;
+  grid.replaceChildren();
+  const list = visible();
+  const lo = 0.20, hi = 0.95;
+  list.forEach((r, i) => {
+    const row = document.createElement("button");
+    row.className = "model";
+    row.type = "button";
+    row.setAttribute("aria-pressed", String(state.model === r.runner));
+    const flags = [
+      r.sharding ? '<span class="pill">shard</span>' : "",
+      r.techniqueReimplementation ? '<span class="pill">reimpl.</span>' : "",
+      r.runner === "pngwn" ? '<span class="pill">unresolved</span>' : "",
+    ].join("");
+    row.innerHTML =
+      '<span class="rk">' + (i + 1) + '</span>' +
+      '<span class="nm">' + r.runner + '</span>' +
+      '<span class="model-track"><i style="width:' + (((r.accuracy - lo) / (hi - lo)) * 100).toFixed(1) +
+        '%;background:' + colour(r) + '"></i></span>' +
+      '<span class="acc" style="color:' + colour(r) + '">' + r.accuracy.toFixed(4) + '</span>' +
+      '<span class="model-flags">' + flags + '</span>';
+    row.addEventListener("click", () => {
+      state.model = r.runner;
+      state.compare = "none";
+      document.querySelectorAll("[data-compare]").forEach((b) =>
+        b.setAttribute("aria-pressed", String(b.dataset.compare === "none")));
+      const sel = A("#suite-model");
+      if (sel) sel.value = r.runner;
+      drawCards();
+      drawSuites();
+      A("#suites").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    grid.append(row);
+  });
+  const c = A("#grid-count");
+  if (c) c.textContent = list.length + " shown \u00b7 click any row for its per-suite profile";
+}
+
+/* ------------------------------------------------------ suite multiples */
+function drawMultiples() {
+  const host = A("#suite-multiples");
+  if (!host) return;
+  host.replaceChildren();
+  D.suites.forEach((suite) => {
+    const ranked = rows()
+      .filter((r) => r.suites[suite] !== undefined)
+      .sort((a, b) => b.suites[suite] - a.suites[suite]);
+    const top = ranked.slice(0, 5);
+    const vals = ranked.map((r) => r.suites[suite]);
+    const mean = vals.reduce((s2, v) => s2 + v, 0) / vals.length;
+    const spread = vals.reduce((s2, v) => s2 + Math.abs(v - mean), 0) / vals.length;
+
+    const box = document.createElement("div");
+    box.className = "multiple";
+    box.innerHTML = '<h4>' + suite + '</h4><div class="spread">top ' +
+      pct(top[0] ? top[0].suites[suite] : 0) + '% \u00b7 spread ' + pct(spread) + '</div>';
+    host.append(box);
+
+    const w = 220, rowH = 13, padL = 78, padR = 34;
+    const h = top.length * rowH + 6;
+    const svg = el("svg", { viewBox: "0 0 " + w + " " + h, role: "img" });
+    svg.setAttribute("aria-label", "Top five models on " + suite);
+    const lo = Math.max(0, Math.min.apply(null, vals) - 0.06);
+    const x = (v) => padL + ((v - lo) / (1 - lo)) * (w - padL - padR);
+    top.forEach((r, i) => {
+      const y = i * rowH + 2;
+      const lab = el("text", { x: 0, y: y + 9, class: "bar-label" });
+      lab.textContent = r.runner.length > 13 ? r.runner.slice(0, 12) + "\u2026" : r.runner;
+      svg.append(lab);
+      const bw = Math.max(1, x(r.suites[suite]) - padL);
+      const bar = el("rect", { x: padL, y: y + 2, width: bw, height: rowH - 5, rx: 2, fill: colour(r) });
+      bar.appendChild(el("title")).textContent = r.runner + " \u00b7 " + suite + " \u00b7 " + pct(r.suites[suite]) + "%";
+      svg.append(bar);
+      const v = el("text", { x: padL + bw + 5, y: y + 9, class: "bar-value" });
+      v.textContent = r.suites[suite].toFixed(2);
+      svg.append(v);
+    });
+    box.append(svg);
+  });
+}
+
+/* ------------------------------------------------------------ strip plot */
+function drawStrip() {
+  const svg = A("#chart-strip");
+  svg.replaceChildren();
+  const list = rows().slice().sort((a, b) => a.accuracy - b.accuracy);
+  const ref = D.referenceClosedApi;
+  const padL = 14, padR = 58, padT = 22, padB = 30;
+  const w = 520, h = 250;
+  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  const min = 0.25, max = 0.92;
+  const x = (v) => padL + ((v - min) / (max - min)) * (w - padL - padR);
+
+  for (let t = 0.3; t <= 0.9; t += 0.1) {
+    svg.append(el("line", { x1: x(t), x2: x(t), y1: padT - 8, y2: h - padB, class: "grid-line" }));
+    const lab = el("text", { x: x(t), y: h - padB + 15, class: "axis-label", "text-anchor": "middle" });
+    lab.textContent = t.toFixed(1);
+    svg.append(lab);
+  }
+  const jitter = (i) => padT + 10 + ((i * 37) % 100) / 100 * (h - padT - padB - 16);
+
+  list.forEach((r, i) => {
+    const c = el("circle", {
+      cx: x(r.accuracy), cy: jitter(i), r: 3.4,
+      fill: r.techniqueReimplementation ? "var(--caveat)" : r.runner === "pngwn" ? "var(--warn)" : "var(--accent)",
+      opacity: 0.85,
+    });
+    c.appendChild(el("title")).textContent = `${r.runner} \u2014 ${pct(r.accuracy)}%`;
+    svg.append(c);
+  });
+
+  const rx = x(ref.accuracy);
+  svg.append(el("line", { x1: rx, x2: rx, y1: padT - 14, y2: h - padB,
+    stroke: "var(--closed)", "stroke-width": 1.5, "stroke-dasharray": "3 3" }));
+  const t = el("text", { x: rx + 4, y: padT - 18, class: "axis-label", fill: "var(--closed)" });
+  t.textContent = "Jev";
+  svg.append(t);
+
+  const best = list[list.length - 1];
+  const bl = el("text", { x: x(best.accuracy) + 6, y: jitter(list.length - 1) + 3, class: "bar-value" });
+  bl.textContent = best.runner;
+  svg.append(bl);
+}
+
 /* --------------------------------------------------------------- heatmap */
+/* Transposed: suites down the side, models across. 43 rows by 9 columns is a tall strip in a
+   wide container; 9 rows by 43 columns fills it and reads left-to-right in score order. */
 function drawHeatmap() {
   const svg = A("#chart-heatmap");
   svg.replaceChildren();
   const list = rows().slice().sort((a, b) => b.accuracy - a.accuracy);
   const suites = D.suites;
 
-  const padL = 150, padT = 26, cell = 15, gap = 2;
-  const w = padL + suites.length * (cell + gap) + 12;
-  const h = padT + list.length * (cell + gap) + 8;
-  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  const padL = 116, padT = 74, cw = 24, ch = 26, gap = 2;
+  const w = padL + list.length * (cw + gap) + 10;
+  const h = padT + suites.length * (ch + gap) + 8;
+  svg.setAttribute("width", w);
   svg.setAttribute("height", h);
+  svg.style.width = w + "px";
+  svg.style.maxWidth = "none";
 
-  suites.forEach((s, si) => {
-    const t = el("text", {
-      x: padL + si * (cell + gap) + cell / 2, y: padT - 9,
-      class: "axis-label", "text-anchor": "start",
-      transform: `rotate(-52 ${padL + si * (cell + gap) + cell / 2} ${padT - 9})`,
-    });
-    t.textContent = s;
-    svg.append(t);
+  list.forEach((r, ci) => {
+    const x = padL + ci * (cw + gap);
+    if (ci % 4 === 0) {
+      const t = el("text", {
+        x: x + cw / 2, y: padT - 10, class: "axis-label", "text-anchor": "start",
+        transform: `rotate(-58 ${x + cw / 2} ${padT - 10})`,
+      });
+      t.textContent = r.runner;
+      svg.append(t);
+    }
   });
 
-  list.forEach((r, ri) => {
-    const y = padT + ri * (cell + gap);
-    const lab = el("text", { x: 0, y: y + cell - 3, class: "bar-label" });
-    lab.textContent = r.runner.length > 21 ? r.runner.slice(0, 20) + "…" : r.runner;
+  suites.forEach((suite, si) => {
+    const y = padT + si * (ch + gap);
+    const lab = el("text", { x: 0, y: y + ch / 2 + 4, class: "bar-label" });
+    lab.textContent = suite;
     svg.append(lab);
 
-    suites.forEach((s, si) => {
-      const v = r.suites[s];
+    list.forEach((r, ci) => {
+      const v = r.suites[suite];
       const rect = el("rect", {
-        x: padL + si * (cell + gap), y, width: cell, height: cell, rx: 2,
-        fill: v === undefined ? "var(--surface-2)" : `color-mix(in oklab, var(--accent) ${Math.round(v * 100)}%, var(--surface-2))`,
-        opacity: r.techniqueReimplementation ? 0.55 : 1,
+        x: padL + ci * (cw + gap), y, width: cw, height: ch, rx: 3,
+        fill: v === undefined
+          ? "var(--surface-2)"
+          : `color-mix(in oklab, var(--accent) ${Math.round(v * 100)}%, var(--surface-2))`,
+        opacity: r.techniqueReimplementation ? 0.5 : 1,
       });
-      rect.append(el("title")).textContent = `${r.runner} · ${s} · ${v === undefined ? "no data" : pct(v) + "%"}`;
+      rect.appendChild(el("title")).textContent =
+        `${r.runner} \u00b7 ${suite} \u00b7 ${v === undefined ? "no data" : pct(v) + "%"}`;
       svg.append(rect);
     });
   });
@@ -276,7 +424,7 @@ function drawPrecision() {
   pairs.forEach(([label, v, fill], i) => {
     const bw = 96, x0 = padL + 24 + i * (bw + 52);
     svg.append(el("rect", { x: x0, y: y(v), width: bw, height: Math.max(1, h - padB - y(v)), rx: 3, fill }));
-    svg.lastChild.append(el("title")).textContent = `${label} · ${pct(v)}%`;
+    svg.lastChild.appendChild(el("title")).textContent = `${label} · ${pct(v)}%`;
     const vt = el("text", { x: x0 + bw / 2, y: y(v) - 7, class: "bar-value", "text-anchor": "middle" });
     vt.textContent = v.toFixed(4);
     svg.append(vt);
@@ -377,9 +525,10 @@ function hydrate() {
 }
 
 function drawAll() {
-  drawLeaderboard();
-  drawTable();
+  drawStrip();
+  drawCards();
   drawSuites();
+  drawMultiples();
   drawHeatmap();
   drawPrecision();
   drawCoverage();
@@ -391,15 +540,13 @@ function wire() {
       state.filter = btn.dataset.filter;
       document.querySelectorAll("[data-filter]").forEach((b) =>
         b.setAttribute("aria-pressed", String(b === btn)));
-      drawLeaderboard();
-      drawTable();
+      drawCards();
     });
   });
 
   A("#sort-by").addEventListener("change", (e) => {
     state.sort = e.target.value;
-    drawLeaderboard();
-    drawTable();
+    drawCards();
   });
 
   A("#suite-model").addEventListener("change", (e) => {
@@ -423,11 +570,23 @@ function wire() {
     document.querySelectorAll(".reveal").forEach((n) => n.classList.add("in"));
     return;
   }
+  const nodes = Array.from(document.querySelectorAll(".reveal"));
+  const show = (n) => n.classList.add("in");
+
+  if (typeof IntersectionObserver !== "function") {
+    nodes.forEach(show);
+    return;
+  }
   const io = new IntersectionObserver(
     (entries) => entries.forEach((e) => {
-      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      if (e.isIntersecting) { show(e.target); io.unobserve(e.target); }
     }),
     { rootMargin: "0px 0px -8% 0px" }
   );
-  document.querySelectorAll(".reveal").forEach((n) => io.observe(n));
+  nodes.forEach((n) => io.observe(n));
+
+  // Failsafe. Content must never depend on an animation firing, and a reader who lands
+  // mid-page or whose browser defers the observer should still see everything. Anything
+  // still hidden a moment after load is shown regardless of observer state.
+  window.setTimeout(() => nodes.forEach(show), 1500);
 }

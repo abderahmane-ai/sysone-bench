@@ -22,7 +22,7 @@ multilingual_intent, sst5, triage.
 
 ## Headline results
 
-43 of 51 Decision Index 0.2.1 panel entries measured. Counts are derived from checksum-verified run
+43 of 51 System One decision models measured. Counts are derived from checksum-verified run
 directories by a script, not maintained by hand.
 
 Closed API reference, not a panel entry:
@@ -107,5 +107,5 @@ Eight panel entries were not measured, each with a recorded reason:
   `vendor_code_executed: false`.
 - **pngwn scored 0.2734** but its vendor never published the prompt format its scorer was trained
   on. It is recorded as unresolved rather than as a measurement of the model.
-- **hopper-g at 0.7911** is consistent with the vendor's self-reported 40.77 on the Decision Index
-  0.2.1 board, which is the one external cross-check available.
+- **hopper-g at 0.7911** is the one model here with an independently published score to compare
+  against, and the two agree closely. That is the only external validation available for this panel.

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>sysone-bench — 43 independent measurements of System One decision models</title>
-<meta name="description" content="An independent head-to-head benchmark of System One decision models. 43 of 51 Decision Index 0.2.1 entries measured against one sealed manifest, with immutable revisions and per-row provenance.">
+<meta name="description" content="An independent head-to-head benchmark of System One decision models. 43 of 51 System One decision models measured against one sealed manifest, with immutable revisions and per-row provenance.">
 <link rel="canonical" href="https://sysone.sdad.pro/">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 
@@ -12,7 +12,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="sysone-bench">
 <meta property="og:title" content="sysone-bench — 43 measurements of System One decision models">
-<meta property="og:description" content="43 of 51 Decision Index 0.2.1 entries measured against one sealed manifest at seed 42. Closed API reference 0.9065; best open model 0.8556.">
+<meta property="og:description" content="43 of 51 System One decision models measured against one sealed manifest at seed 42. Closed API reference 0.9065; best open model 0.8556.">
 <meta property="og:url" content="https://sysone.sdad.pro/">
 <meta property="og:image" content="https://sysone.sdad.pro/og.png">
 
@@ -22,6 +22,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="style.css">
+<script>document.documentElement.classList.add("js");</script>
 
 <!-- GEO: machine-readable provenance for AI answer engines.
      The single most important fact on the page is that these are independent measurements
@@ -55,7 +56,7 @@
       "creator": { "@id": "https://sysone.sdad.pro/#org" },
       "keywords": [
         "decision models","System One","benchmark","evaluation","LLM evaluation",
-        "calibration","decision index","Jev","Laya"
+        "calibration","decision models","Jev","Laya"
       ],
       "license": "https://github.com/instax-dutta/sysone-bench",
       "isAccessibleForFree": true,
@@ -97,7 +98,7 @@
         },
         {
           "@type": "Question",
-          "name": "How many of the 51-model Decision Index panel were measured?",
+          "name": "How many of the 51 models in scope were measured?",
           "acceptedAnswer": { "@type": "Answer", "text": "43 distinct measurements. Counts are derived from finished run directories by a coverage auditor that verifies checksums and fingerprints predictions, so repeat runs and identical runs collapse instead of inflating the number. Two entries never published weights and three exceed the available hardware." }
         },
         {
@@ -134,34 +135,50 @@
     <p class="eyebrow">Independent · no vendor access</p>
     <h1>Every System One model, graded on the <em>same bytes</em>.</h1>
     <p class="hero-lede">
-      Vendor leaderboards compare numbers produced from different prompts. That is not a comparison.
-      Here every model answers the same <strong>1,190 sealed cases</strong> and <strong>1,240
-      scored decisions</strong> at seed 42, with inputs verified byte-identical before any number
-      is read.
+      Self-reported scores are not comparable, because each one comes from its own prompt. So we
+      ignore them. Every model here is run by us, against the same <strong>1,190 sealed cases</strong>
+      and <strong>1,240 scored decisions</strong> at seed 42, with inputs verified byte-identical
+      before a single number is read.
     </p>
 
-    <dl class="proof">
-      <div>
-        <dt>Open models measured</dt>
-        <dd id="stat-measured">43<span class="unit">/51</span></dd>
-        <small>of the Decision Index 0.2.1 panel</small>
-      </div>
-      <div>
-        <dt>Best open model</dt>
-        <dd id="stat-best">0.8556</dd>
-        <small><span id="stat-best-name">kev-4b</span> · 4.66B LoRA + head</small>
-      </div>
-      <div>
-        <dt>Closed API reference</dt>
-        <dd id="stat-closed">0.9065</dd>
-        <small>Jev 1.13.0 · not a panel entry</small>
-      </div>
-      <div>
-        <dt>Gap to beat</dt>
-        <dd id="stat-gap">0.0509</dd>
-        <small>closed reference minus best open</small>
-      </div>
-    </dl>
+    <div class="hero-grid">
+      <dl class="proof">
+        <div>
+          <dt>Open models measured</dt>
+          <dd id="stat-measured">43<span class="unit">/51</span></dd>
+          <small>of 51 System One decision models</small>
+        </div>
+        <div>
+          <dt>Best open model</dt>
+          <dd id="stat-best">0.8556</dd>
+          <small><span id="stat-best-name">kev-4b</span> · 4.66B LoRA + head</small>
+        </div>
+        <div>
+          <dt>Closed API reference</dt>
+          <dd id="stat-closed">0.9065</dd>
+          <small>Jev 1.13.0 · not a panel entry</small>
+        </div>
+        <div>
+          <dt>Gap to beat</dt>
+          <dd id="stat-gap">0.0509</dd>
+          <small>closed reference minus best open</small>
+        </div>
+      </dl>
+
+      <figure class="chart" style="margin:0">
+        <figcaption class="chart-head">
+          <h3>Where the field sits</h3>
+          <p>Each mark is one model, on accuracy.</p>
+        </figcaption>
+        <svg id="chart-strip" role="img" aria-label="Strip plot of accuracy for all 43 measured models against the closed API reference"></svg>
+        <div class="legend" style="margin-top:.9rem">
+          <div><i style="background:var(--accent)"></i> vendor readout</div>
+          <div><i style="background:var(--caveat)"></i> technique reimpl.</div>
+          <div><i style="background:var(--warn)"></i> unresolved</div>
+          <div><i style="background:var(--closed)"></i> Jev 1.13.0</div>
+        </div>
+      </figure>
+    </div>
   </div>
 </header>
 
@@ -191,37 +208,9 @@
       </select>
     </div>
 
-    <div class="chart reveal">
-      <div class="chart-head">
-        <h3>Accuracy by model</h3>
-        <p>Higher is better. Axis starts at 0.30 so the field is separable.</p>
-      </div>
-      <svg id="chart-leaderboard" role="img" aria-label="Horizontal bar chart of accuracy for 43 measured decision models"></svg>
-    </div>
+    <div class="models reveal" id="model-grid"></div>
 
-    <div class="legend reveal">
-      <div><i style="background:var(--accent)"></i> vendor readout</div>
-      <div><i style="background:var(--caveat)"></i> technique reimplementation</div>
-      <div><i style="background:var(--closed)"></i> closed API reference</div>
-      <div><i style="background:var(--warn)"></i> prompt format unresolved</div>
-    </div>
-
-    <div class="tbl-scroll reveal" style="margin-top:2.5rem">
-      <table id="table-all">
-        <caption class="sr">Every measured model with accuracy, provenance and scoring readout</caption>
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Model</th>
-            <th scope="col" class="num">Accuracy</th>
-            <th scope="col">Kind</th>
-            <th scope="col">Scoring readout</th>
-            <th scope="col">Run</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
+    <p class="reveal" style="margin-top:1rem;color:var(--ink-4);font-size:.82rem" id="grid-count"></p>
   </div>
 </section>
 
@@ -256,12 +245,21 @@
       <div class="legend" id="suite-legend"></div>
     </div>
 
+    <div class="reveal" style="margin-top:1.5rem">
+      <div class="chart-head">
+        <h3>Nine suites, side by side</h3>
+        <p>Top five models in each suite, with the suite spread stated. A model strong here and weak
+        there is the whole reason aggregate accuracy is not enough.</p>
+      </div>
+      <div class="multiples" id="suite-multiples"></div>
+    </div>
+
     <div class="chart reveal" style="margin-top:1rem">
       <div class="chart-head">
         <h3>Suite heatmap</h3>
-        <p>Every measurement against every suite. Darker is more correct.</p>
+        <p>All 43 measurements against all 9 suites, in score order left to right. Darker is more correct; the dimmer columns are technique reimplementations.</p>
       </div>
-      <div class="tbl-scroll">
+      <div class="heatmap-scroll">
         <svg id="chart-heatmap" role="img" aria-label="Heatmap of accuracy for all models across nine suites"></svg>
       </div>
     </div>
@@ -373,6 +371,11 @@
         identical predictions. The number is generated, not maintained.</p>
       </div>
       <div class="card reveal">
+        <h3>Our own model list</h3>
+        <p>The 51 models in scope were compiled here from public releases, model cards and
+        published work. No third party's results, prompts or leaderboard entries were used as input.</p>
+      </div>
+      <div class="card reveal">
         <h3>Failure modes recorded</h3>
         <p>Models that could not be measured are listed with the reason. Two never published
         weights; three exceed the available hardware.</p>
@@ -449,8 +452,10 @@ python ops/panel_coverage.py \
     </div>
     <div>
       <h3>Scope</h3>
-      <p id="foot-scope">Decision Index 0.2.1, 51 entries in scope.</p>
+      <p id="foot-scope">51 System One decision models in scope.</p>
       <p id="foot-count">43 measured, 8 not measured.</p>
+      <p>The list of models was assembled by us from public releases, model cards and published
+      work. None of it is inherited from anyone's results.</p>
     </div>
   </div>
 </footer>
