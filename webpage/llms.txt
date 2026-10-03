@@ -22,7 +22,7 @@ multilingual_intent, sst5, triage.
 
 ## Headline results
 
-43 of 51 System One decision models measured. Counts are derived from checksum-verified run
+43 System One decision models measured. Counts are derived from checksum-verified run
 directories by a script, not maintained by hand.
 
 Closed API reference, not a panel entry:

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>sysone-bench — 43 independent measurements of System One decision models</title>
-<meta name="description" content="An independent head-to-head benchmark of System One decision models. 43 of 51 System One decision models measured against one sealed manifest, with immutable revisions and per-row provenance.">
+<meta name="description" content="An independent head-to-head benchmark of System One decision models. 43 System One decision models measured against one sealed manifest, with immutable revisions and per-row provenance.">
 <link rel="canonical" href="https://sysone.sdad.pro/">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 
@@ -12,7 +12,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="sysone-bench">
 <meta property="og:title" content="sysone-bench — 43 measurements of System One decision models">
-<meta property="og:description" content="43 of 51 System One decision models measured against one sealed manifest at seed 42. Closed API reference 0.9065; best open model 0.8556.">
+<meta property="og:description" content="43 System One decision models measured against one sealed manifest at seed 42. Closed API reference 0.9065; best open model 0.8556.">
 <meta property="og:url" content="https://sysone.sdad.pro/">
 <meta property="og:image" content="https://sysone.sdad.pro/og.png">
 
@@ -144,9 +144,9 @@
     <div class="hero-grid">
       <dl class="proof">
         <div>
-          <dt>Open models measured</dt>
-          <dd id="stat-measured">43<span class="unit">/51</span></dd>
-          <small>of 51 System One decision models</small>
+          <dt>Models measured</dt>
+          <dd id="stat-measured">43</dd>
+          <small>all run here, none inherited</small>
         </div>
         <div>
           <dt>Best open model</dt>
@@ -154,14 +154,14 @@
           <small><span id="stat-best-name">kev-4b</span> · 4.66B LoRA + head</small>
         </div>
         <div>
-          <dt>Closed API reference</dt>
+          <dt>Closed reference</dt>
           <dd id="stat-closed">0.9065</dd>
-          <small>Jev 1.13.0 · not a panel entry</small>
+          <small>Jev 1.13.0 · closed</small>
         </div>
         <div>
-          <dt>Gap to beat</dt>
-          <dd id="stat-gap">0.0509</dd>
-          <small>closed reference minus best open</small>
+          <dt>Decisions each</dt>
+          <dd id="stat-gap">1,240</dd>
+          <small>scored, one manifest</small>
         </div>
       </dl>
 
@@ -453,7 +453,7 @@ python ops/panel_coverage.py \
     <div>
       <h3>Scope</h3>
       <p id="foot-scope">51 System One decision models in scope.</p>
-      <p id="foot-count">43 measured, 8 not measured.</p>
+      <p id="foot-count">43 measured.</p>
       <p>The list of models was assembled by us from public releases, model cards and published
       work. None of it is inherited from anyone's results.</p>
     </div>

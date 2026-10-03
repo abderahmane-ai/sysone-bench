@@ -338,8 +338,11 @@ function drawStrip() {
   svg.append(t);
 
   const best = list[list.length - 1];
-  const bl = el("text", { x: x(best.accuracy) + 6, y: jitter(list.length - 1) + 3, class: "bar-value" });
-  bl.textContent = best.runner;
+  const bl = el("text", {
+    x: x(best.accuracy) - 8, y: padT + 4, class: "bar-value",
+    fill: "var(--accent)", "text-anchor": "end",
+  });
+  bl.textContent = "best " + best.accuracy.toFixed(4);
   svg.append(bl);
 }
 
