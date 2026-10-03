@@ -7,9 +7,9 @@ import os
 import random
 import re
 import stat
-import traceback
 import statistics
 import sys
+import traceback
 from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
 from datetime import UTC, datetime

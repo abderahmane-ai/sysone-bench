@@ -25,7 +25,12 @@ jobs:
           version: "0.11.3"
           python-version: ${{ matrix.python-version }}
       - name: Sync dependencies
-        run: uv sync --frozen --extra dev --extra qwen
+        run: uv sync --frozen --extra dev --extra qwen --extra vendor
+        # `vendor` is required: tests/test_vendor_common.py imports each adapter module by
+        # path, which resolves their top-level SDK imports, so the suite cannot import
+        # runners/vendor/thisthat.py without `thisthat` installed. lavoir needs no entry
+        # because its adapter imports the SDK lazily inside _load, and its tests construct
+        # the runner via __new__ to bypass from_pretrained.
       - name: Run core Ruff
         run: uv run --offline ruff check benchmark tests
       - name: Run PCD Ruff

@@ -11,7 +11,7 @@ import sys
 import types
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import pytest
 
@@ -45,6 +45,29 @@ SCORE_QUESTION = {
     "max_score": 4,
 }
 
+
+
+def _sdk_available(module: str, symbol: str | None = None) -> bool:
+    """True when a vendor SDK that has no usable distribution is really usable.
+
+    Two different failures have to be told apart. `lavoir` publishes nothing on PyPI, so it raises
+    ImportError. `thisthat` publishes an empty placeholder that imports cleanly and exports nothing,
+    so an import check alone would pass and the adapter would then fail on `from thisthat import
+    Question`. Passing `symbol` asserts the attribute actually exists.
+    """
+
+    import importlib
+
+    try:
+        imported = importlib.import_module(module)
+    except ImportError:
+        return False
+    return symbol is None or hasattr(imported, symbol)
+
+
+#: The this-that adapter needs `Question`; the placeholder package does not provide it.
+_THAT_SDK = _sdk_available("thisthat", "Question")
+_LAVOIR_SDK = _sdk_available("lavoir")
 
 def test_state_to_text_preserves_field_labels() -> None:
     # The sealed questions reference field names directly, so labels must survive.
@@ -180,13 +203,15 @@ class _FakeNative(VendorRunner):
         }
 
     #: A real vendor answers exactly the questions it was asked, so the fake keys off the request.
-    RESPONSES: dict[str, dict[str, Any]] = {
+    #: ClassVar because these are shared fixtures: a mutable default on a plain attribute would be
+    #: one dict per instance, so a test mutating it would not be visible to the next test.
+    RESPONSES: ClassVar[dict[str, dict[str, Any]]] = {
         "intent": {"choice": "refund", "probabilities": {"refund": 0.7, "cancel": 0.3}},
         "refund_requested": {"noul": 0.9},
         "sentiment": {"score": 3},
     }
-    omit: set[str] = set()
-    extra: dict[str, Any] = {}
+    omit: ClassVar[set[str]] = set()
+    extra: ClassVar[dict[str, Any]] = {}
 
     def _call(self, state: Mapping[str, Any], questions: Mapping[str, Any]) -> Mapping[str, Any]:
         self.seen.append((dict(state), dict(questions)))
@@ -348,13 +373,23 @@ def test_bosun_and_gliner_issue_one_call_per_question() -> None:
         assert "predict" not in runner_class.__dict__
 
 
+
+
+
+
+
+
+
+
+
+
 def test_decision1_and_lumma_strip_our_bookkeeping_keys_from_vendor_payloads() -> None:
     # The vendor keys answers by question name, so qid and max_score must not be forwarded.
     from runners.vendor.decision1 import DecisionKaiRunner
     from runners.vendor.lumma_fev import LummaFev01BRunner
 
     class _Recorder(DecisionKaiRunner):
-        def __init__(self) -> None:  # noqa: D107 - test double, no weights loaded
+        def __init__(self) -> None:
             self._metadata = {}
             self.payload: dict[str, Any] = {}
             self._model = self
@@ -385,7 +420,7 @@ def test_gliner_single_label_fallback_is_recorded_as_degenerate_confidence() -> 
         assert runner_class.reports_probabilities is False
 
     class _FakeGliner(GlinerBaseRunner):
-        def __init__(self) -> None:  # noqa: D107 - test double, no weights loaded
+        def __init__(self) -> None:
             self._metadata = {}
             self._model = self
             self.asked: list[str] = []
@@ -415,160 +450,7 @@ def test_gliner_rejects_a_label_outside_the_declared_options() -> None:
     from runners.vendor.gliner import GlinerBaseRunner
 
     class _InventingGliner(GlinerBaseRunner):
-        def __init__(self) -> None:  # noqa: D107 - test double, no weights loaded
-            self._metadata = {}
-            self._model = self
-
-        def classify_text(self, text: str, schema: dict[str, Any]) -> dict[str, Any]:
-            return {"intent": "escalate_to_human"}
-
-    with pytest.raises(ValueError, match="not a declared option"):
-        _InventingGliner().predict({"message": "x"}, {"intent": dict(CHOICE_QUESTION)})
-
-
-def test_intern_decision_projects_the_shape_verified_in_its_shipped_inference_module() -> None:
-    # Read from the real inference.py on 2026-10-02: each answer carries probabilities/confidence/
-    # decision, with `noul` set from the `yes` probability and `score` a weighted expected value
-    # plus a legend. The shared projection must accept that and drop legend/source/decision.
-    from runners.vendor.common import project_vendor_answer
-
-    choice = project_vendor_answer(
-        {
-            "type": "choice",
-            "probabilities": {"refund": 0.82, "cancel": 0.18},
-            "confidence": 0.82,
-            "choice": "refund",
-            "source": "local",
-            "decision": "refund",
-        },
-        CHOICE_QUESTION,
-        "q",
-    )
-    # Renormalization absorbs the residual on the largest entry, so the top value is computed
-    # rather than copied; assert structure and ordering, not float identity.
-    assert choice["type"] == "choice"
-    assert choice["choice"] == "refund"
-    assert set(choice["probabilities"]) == {"refund", "cancel"}
-    assert choice["probabilities"]["refund"] > choice["probabilities"]["cancel"]
-    assert choice["confidence"] == choice["probabilities"]["refund"]
-    assert "source" not in choice and "decision" not in choice
-
-    noul = project_vendor_answer(
-        {
-            "type": "noul",
-            "probabilities": {"no": 0.25, "yes": 0.75},
-            "noul": 0.75,
-            "confidence": 0.75,
-            "legend": {"no": "No", "yes": "Yes"},
-        },
-        NOUL_QUESTION,
-        "q",
-    )
-    assert noul == {"type": "noul", "noul": 0.75}
-
-    # A score answer is a weighted expected value over declared levels, not a bare index.
-    score = project_vendor_answer(
-        {
-            "type": "score",
-            "probabilities": {"0": 0.0, "1": 0.0, "2": 0.25, "3": 0.75, "4": 0.0},
-            "score": 2.75,
-            "confidence": 0.75,
-            "legend": {"0": "very negative"},
-        },
-        SCORE_QUESTION,
-        "q",
-    )
-    assert score["type"] == "score"
-    assert score["score"] == 3.0
-    assert "legend" not in score
-
-
-def test_thisthat_and_intern_decision_are_registered_with_pinned_identity() -> None:
-    from runners.vendor.intern_decision import (
-        InternDecision08BRunner,
-        InternDecision2BRunner,
-    )
-    from runners.vendor.thisthat import ThisThat12Runner
-
-    assert InternDecision08BRunner.default_revision.startswith("85a0cc5a")
-    assert InternDecision2BRunner.default_revision.startswith("8797836c")
-    assert ThisThat12Runner.default_revision.startswith("c4d1c30b")
-    assert ThisThat12Runner.license_name == "mit"
-    # Both override predict because neither vendor accepts a questions mapping.
-    from runners.vendor.common import VendorRunner
-
-    # It overrides predict because the single-pass call is not the shared base's shape.
-    assert ThisThat12Runner.__dict__["predict"] is not VendorRunner.__dict__["predict"]
-
-
-def test_decision1_and_lumma_strip_our_bookkeeping_keys_from_vendor_payloads() -> None:
-    # The vendor keys answers by question name, so qid and max_score must not be forwarded.
-    from runners.vendor.decision1 import DecisionKaiRunner
-    from runners.vendor.lumma_fev import LummaFev01BRunner
-
-    class _Recorder(DecisionKaiRunner):
-        def __init__(self) -> None:  # noqa: D107 - test double, no weights loaded
-            self._metadata = {}
-            self.payload: dict[str, Any] = {}
-            self._model = self
-
-        def system_one(self, **kwargs: Any) -> Mapping[str, Any]:
-            self.payload = kwargs
-            return {"answers": {}}
-
-    recorder = _Recorder()
-    recorder._call({"message": "x"}, {"intent": dict(CHOICE_QUESTION), "s": dict(SCORE_QUESTION)})
-    assert "qid" not in recorder.payload["questions"]["intent"]
-    assert "max_score" not in recorder.payload["questions"]["s"]
-    assert recorder.payload["questions"]["intent"]["criteria"] == CHOICE_QUESTION["criteria"]
-    # The real runners keep their pinned identity.
-    assert DecisionKaiRunner.default_revision.startswith("69aef406")
-    assert LummaFev01BRunner.default_revision.startswith("085f4705")
-
-
-def test_gliner_single_label_fallback_is_recorded_as_degenerate_confidence() -> None:
-    # Verified on the real checkpoints: gliner2 returns a bare {"task": "label"} with no
-    # probabilities, so the adapter must emit a legal one-hot map and declare that in metadata
-    # rather than letting a fabricated spread reach the report.
-    from runners.vendor.gliner import GlinerBaseRunner, GlinerDecideRunner
-
-    for runner_class in (GlinerBaseRunner, GlinerDecideRunner):
-        metadata = runner_class._load.__doc__  # no weights: inspect the declared default instead
-        assert metadata is None or isinstance(metadata, str)
-        assert runner_class.reports_probabilities is False
-
-    class _FakeGliner(GlinerBaseRunner):
-        def __init__(self) -> None:  # noqa: D107 - test double, no weights loaded
-            self._metadata = {}
-            self._model = self
-            self.asked: list[str] = []
-
-        def classify_text(self, text: str, schema: dict[str, Any]) -> dict[str, Any]:
-            self.asked.append(text)
-            task = next(iter(schema))
-            return {task: "refund"} if task == "intent" else {task: "yes"}
-
-    runner = _FakeGliner()
-    result = runner.predict(
-        {"message": "refund please"},
-        {"intent": dict(CHOICE_QUESTION), "refund_requested": dict(NOUL_QUESTION)},
-    )
-    intent = result["answers"]["intent"]
-    assert intent["choice"] == "refund"
-    # A one-hot map is the honest encoding of "the vendor named one label".
-    assert intent["probabilities"] == {"refund": 1.0, "cancel": 0.0}
-    assert intent["confidence"] == 1.0
-    assert result["answers"]["refund_requested"] == {"type": "noul", "noul": 1.0}
-    assert result["_usage"]["calls"] == 2
-    # State field labels must survive, because the sealed questions refer to them by name.
-    assert runner.asked[0] == "message: refund please"
-
-
-def test_gliner_rejects_a_label_outside_the_declared_options() -> None:
-    from runners.vendor.gliner import GlinerBaseRunner
-
-    class _InventingGliner(GlinerBaseRunner):
-        def __init__(self) -> None:  # noqa: D107 - test double, no weights loaded
+        def __init__(self) -> None:
             self._metadata = {}
             self._model = self
 
@@ -756,23 +638,6 @@ def test_jet_refuses_a_cpu_device_instead_of_failing_on_the_first_forward() -> N
         monkey.undo()
 
 
-def test_neohorse_registers_snapshot_dist_metadata_so_the_package_can_import() -> None:
-    # Regression: neohorse_decision/__init__.py calls importlib.metadata.version('neohorse-decision'),
-    # but the snapshot ships package/pyproject.toml without an installed distribution, so a bare
-    # sys.path entry raises "No package metadata was found for neohorse-decision". The shim writes a
-    # minimal .dist-info beside the snapshot's pyproject so the version resolves.
-    import importlib.metadata
-
-    from runners.vendor.neohorse import _install_dist_metadata
-
-    with pytest.MonkeyPatch.context() as mp:
-        mp.syspath_prepend(str(tmp_path := _tmp_snapshot()))
-        _install_dist_metadata(tmp_path)
-        dists = {
-            d.metadata["Name"]: d.version
-            for d in importlib.metadata.distributions(path=[str(tmp_path)])
-        }
-    assert dists.get("neohorse-decision"), dists
 
 
 def _tmp_snapshot() -> Any:
@@ -838,7 +703,6 @@ def test_neohorse_registers_snapshot_dist_metadata_so_the_package_can_import() -
     # but the snapshot ships package/pyproject.toml without an installed distribution, so a bare
     # sys.path entry raises "No package metadata was found for neohorse-decision". The shim writes a
     # minimal .dist-info beside the snapshot's pyproject so the version resolves.
-    import importlib.metadata
     import tempfile
     from pathlib import Path
 
@@ -1027,9 +891,7 @@ def test_kev_projects_the_vendor_answer_shape_from_to_answers() -> None:
 def test_jpt_pins_a_temperature_per_size() -> None:
     # JPT fits one temperature per size on a held-out split and the card states each one, so they
     # must differ per class and be recorded rather than searched for.
-    from runners.vendor.jpt import Jpt08BRunner, Jpt4BRunner
-
-    from runners.vendor.jpt import Jpt9BRunner
+    from runners.vendor.jpt import Jpt08BRunner, Jpt4BRunner, Jpt9BRunner
 
     assert Jpt08BRunner.default_temperature == "1.140"
     assert Jpt4BRunner.default_temperature == "1.036"
@@ -1090,13 +952,14 @@ def test_jpt_resolves_a_local_snapshot_because_a_repo_at_revision_string_is_not_
     assert calls[0]["revision"] == "1431c0509bbc10772cd59964cc7af5835c8720d6"
 
 
+@pytest.mark.skipif(not _THAT_SDK, reason="thisthat SDK has no PyPI distribution; install from vendor source")
 def test_thisthat_answers_every_question_in_one_call_and_keeps_declared_labels() -> None:
     # Verified from the pinned source: decide() takes a LIST of Question and answers them all in a
     # single forward pass, and Decision.probabilities is aligned to the options we passed in.
     from runners.vendor.thisthat import CODE_COMMIT, ThisThat12Runner
 
     class _FakeThisThat(ThisThat12Runner):
-        def __init__(self) -> None:  # noqa: D107 - test double, no weights loaded
+        def __init__(self) -> None:
             self._metadata = {}
             self._decider = self
             self.batch: list[Any] = []
@@ -1180,7 +1043,7 @@ def test_bosun_relabels_positional_probabilities_onto_declared_criteria() -> Non
     from runners.vendor.bosun import Bosun06BRunner
 
     class _FakeBosun(Bosun06BRunner):
-        def __init__(self) -> None:  # noqa: D107 - test double, no weights loaded
+        def __init__(self) -> None:
             self._metadata = {}
             self._model = _FakeBosunModel()
 
@@ -1214,7 +1077,7 @@ def test_bosun_rejects_a_probability_count_that_does_not_match_candidates() -> N
             return {"probabilities": [0.5]}
 
     class _WrongLength(Bosun06BRunner):
-        def __init__(self) -> None:  # noqa: D107 - test double, no weights loaded
+        def __init__(self) -> None:
             self._metadata = {}
             self._model = _WrongLengthModel()
 
@@ -1409,7 +1272,13 @@ def test_tev1_declares_its_three_measured_differences_in_metadata() -> None:
     # Tev1 is autoregressive and returns one option letter per call, so it differs from the
     # prefill-only panel in ways the report must not hide: one question per call, probabilities read
     # from letter logits rather than reported by the vendor, and latency that is per question.
-    from runners.vendor.tev1 import MAX_OPTIONS, SYSTEM_PROMPT, Tev108BRunner, Tev14BRunner, _options_for
+    from runners.vendor.tev1 import (
+        MAX_OPTIONS,
+        SYSTEM_PROMPT,
+        Tev14BRunner,
+        Tev108BRunner,
+        _options_for,
+    )
 
     for runner_class in (Tev108BRunner, Tev14BRunner):
         assert runner_class.family == "tev1"

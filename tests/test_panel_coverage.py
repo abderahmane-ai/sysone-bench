@@ -16,7 +16,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "ops"))
 
-import panel_coverage  # noqa: E402
+import panel_coverage
 
 
 def _write_run(
