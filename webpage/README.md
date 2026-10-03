@@ -26,6 +26,7 @@ dropped rather than shown.
 | `app.js` | Hand-built SVG charts, ranked field list, filters, reveal-on-scroll |
 | `data/results.json` | Generated. Do not edit by hand |
 | `llms.txt` | Plain-language summary for AI answer engines |
+| `llms-full.txt` | Generated. Every result and caveat in one self-contained document |
 | `robots.txt` | Explicitly permits GPTBot, ClaudeBot, PerplexityBot and others |
 | `sitemap.xml` | Single-URL sitemap |
 | `vercel.json` | Security headers, asset caching, CORS on the data file |

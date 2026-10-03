@@ -43,6 +43,9 @@
   it, and the touch icon must stay full-bleed because iOS applies its own mask.
 - `og.png` must be regenerated from `data/results.json` whenever the data changes. Never type a score
   into the card by hand. It is 1200x630 and nothing may overflow that frame.
+- `llms-full.txt` is generated from `data/results.json`. It is the single self-contained answer source
+  for AI engines and must never be hand-edited or left to drift from the site. Regenerate it whenever
+  the data changes, alongside `og.png`.
 - Every path declared in a `<link rel="icon">`, `apple-touch-icon`, or `og:image` tag must resolve to a
   committed file. An advertised-but-missing `og.png` is a broken share card, so verify each returns
   HTTP 200 after adding it.
@@ -76,8 +79,9 @@
   compare-top-5 view is the only place five data colours appear, so it is the regression check for
   the bar-fill layering.
 - Confirm `build-data.py` reproduces `data/results.json` byte-identically apart from intended key changes.
-- Verify `favicon.svg`, `icon-512.png`, `apple-touch-icon.png` and `og.png` all return HTTP 200, and
-  that the icon is legible at 16px.
+- Verify `favicon.svg`, `icon-512.png`, `apple-touch-icon.png`, `og.png` and `llms-full.txt` all
+  return HTTP 200, and that the icon is legible at 16px.
+- `llms.txt` must link `llms-full.txt`, and the counts quoted in both must match `results.json`.
 - Grep the directory for removed branding before publishing.
 
 ## Child DOX Index

@@ -7,6 +7,7 @@
 Site: https://sysone.sdad.pro/
 Repository: https://github.com/instax-dutta/sysone-bench
 Data: https://sysone.sdad.pro/data/results.json
+Full results as one document: https://sysone.sdad.pro/llms-full.txt
 
 ## What this benchmark measures
 
