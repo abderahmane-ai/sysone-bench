@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>sysone-bench — 43 independent measurements of System One decision models</title>
-<meta name="description" content="An independent head-to-head benchmark of System One decision models. 43 System One decision models measured against one sealed manifest, with immutable revisions and per-row provenance.">
+<title>sysone-bench — independent measurements of System One decision models</title>
+<meta name="description" content="An independent head-to-head benchmark of System One decision models. Every model is run by us against one sealed manifest, with immutable revisions and per-row provenance.">
 <link rel="canonical" href="https://sysone.sdad.pro/">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 
@@ -17,18 +17,18 @@
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="sysone-bench">
-<meta property="og:title" content="sysone-bench — 43 measurements of System One decision models">
-<meta property="og:description" content="43 System One decision models measured against one sealed manifest at seed 42. Closed API reference 0.9065; best open model 0.8556.">
+<meta property="og:title" content="sysone-bench — independent measurements of System One decision models">
+<meta property="og:description" content="Every System One decision model run by us against one sealed manifest at seed 42. No vendor-published score is reused, and there is no composite score across the nine suites.">
 <meta property="og:url" content="https://sysone.sdad.pro/">
 <meta property="og:image" content="https://sysone.sdad.pro/og.png">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="sysone-bench: 43 models, the same bytes. Best open weights 0.8556, closed reference 0.9065, 1,240 decisions each.">
+<meta property="og:image:alt" content="sysone-bench: Every System One model, the same bytes. Nine suites, one metric, no composite score. 1,190 sealed cases and 1,240 scored decisions per model.">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://sysone.sdad.pro/og.png">
-<meta name="twitter:image:alt" content="43 System One decision models graded against one sealed manifest.">
+<meta name="twitter:image:alt" content="Every System One model graded against one sealed manifest at a pinned revision.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,7 +66,7 @@
       "@type": "Dataset",
       "@id": "https://sysone.sdad.pro/#dataset",
       "name": "sysone-bench v2 sealed manifest and panel measurements",
-      "description": "A sealed 1,190-case manifest of typed decision questions plus 43 independent measurements of System One decision models, covering 1,240 evaluation decisions per model.",
+      "description": "A sealed 1,190-case manifest of typed decision questions, with independent measurements of System One decision models covering 1,240 evaluation decisions each.",
       "url": "https://sysone.sdad.pro/",
       "image": "https://sysone.sdad.pro/og.png",
       "creator": { "@id": "https://sysone.sdad.pro/#org" },
@@ -93,8 +93,7 @@
         { "@type": "PropertyValue", "name": "logical digest", "value": "4272a7a25ebcb324235696ad808544e157a31e3f9c04421da731a08dfb9d5768" },
         { "@type": "PropertyValue", "name": "cases", "value": "1190" },
         { "@type": "PropertyValue", "name": "evaluation decisions per model", "value": "1240" },
-        { "@type": "PropertyValue", "name": "seed", "value": "42" },
-        { "@type": "PropertyValue", "name": "models measured", "value": "43" }
+        { "@type": "PropertyValue", "name": "seed", "value": "42" }
       ]
     },
     {
@@ -118,8 +117,8 @@
         },
         {
           "@type": "Question",
-          "name": "How many of the 51 models in scope were measured?",
-          "acceptedAnswer": { "@type": "Answer", "text": "43 distinct measurements. Counts are derived from finished run directories by a coverage auditor that verifies checksums and fingerprints predictions, so repeat runs and identical runs collapse instead of inflating the number. Two entries never published weights and three exceed the available hardware." }
+          "name": "How many models in scope were measured?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Counts are derived from finished run directories by a coverage auditor that verifies checksums and fingerprints predictions, so repeat runs and identical runs collapse instead of inflating the number. The remainder are unmeasured for a recorded reason each, and every reason is listed on the coverage section of the site." }
         },
         {
           "@type": "Question",
@@ -195,7 +194,7 @@
           <h3>Where the field sits</h3>
           <p>Each mark is one model, on accuracy.</p>
         </figcaption>
-        <svg id="chart-strip" role="img" aria-label="Strip plot of accuracy for all 43 measured models against the closed API reference"></svg>
+        <svg id="chart-strip" role="img" aria-label="Strip plot of accuracy for every measured model against the closed API reference"></svg>
         <div class="legend" style="margin-top:.9rem">
           <div><i style="background:var(--accent)"></i> vendor readout</div>
           <div><i style="background:var(--caveat)"></i> technique reimpl.</div>
@@ -213,7 +212,7 @@
     <div class="band-head reveal">
       <h2>The full field, not a curated top ten</h2>
       <p>
-        All 43 measurements, ranked by accuracy on the 1,240 evaluation decisions. Rows marked as
+        All <span data-count="measurements">43</span> measurements, ranked by accuracy on the <span data-count="decisions">1,240</span> evaluation decisions. Rows marked as
         technique reimplementations are our reading of a published method over a public base
         checkpoint, not the authors' own code.
       </p>
@@ -221,7 +220,7 @@
 
     <div class="controls reveal">
       <label for="filter-kind">Show</label>
-      <button class="chip" data-filter="all" aria-pressed="true">All 43</button>
+      <button class="chip" data-filter="all" aria-pressed="true">All <span data-count="measurements">43</span></button>
       <button class="chip" data-filter="vendor" aria-pressed="false">Vendor readout</button>
       <button class="chip" data-filter="technique" aria-pressed="false">Technique reimpl.</button>
       <span class="spacer" style="margin-left:auto"></span>
@@ -263,7 +262,7 @@
     <div class="chart reveal">
       <div class="chart-head">
         <h3 id="suite-title">Per-suite accuracy</h3>
-        <p>Nine suites, 1,240 evaluation decisions total.</p>
+        <p><span data-count="suites">Nine</span> suites, <span data-count="decisions">1,240</span> evaluation decisions total.</p>
       </div>
       <svg id="chart-suites" role="img" aria-label="Grouped bar chart of per-suite accuracy"></svg>
       <div class="legend" id="suite-legend"></div>
@@ -281,7 +280,7 @@
     <div class="chart reveal" style="margin-top:1rem">
       <div class="chart-head">
         <h3>Suite heatmap</h3>
-        <p>All 43 measurements against all 9 suites, in score order left to right. Darker is more correct; the dimmer columns are technique reimplementations.</p>
+        <p>All <span data-count="measurements">43</span> measurements against all <span data-count="suites">9</span> suites, in score order left to right. Darker is more correct; the dimmer columns are technique reimplementations.</p>
       </div>
       <div class="heatmap-scroll">
         <svg id="chart-heatmap" role="img" aria-label="Heatmap of accuracy for all models across nine suites"></svg>
@@ -330,7 +329,7 @@
 <section data-band="coverage" id="coverage">
   <div class="wrap">
     <div class="band-head reveal">
-      <h2>Eight entries, each with a recorded reason</h2>
+      <h2><span data-count="unmeasured">Eight</span> entries, each with a recorded reason</h2>
       <p>
         Coverage is derived from finished run directories by a script, never by hand. That audit is
         what caught six shadowed tests and two runs producing identical answers.
@@ -346,7 +345,7 @@
         <svg id="chart-coverage" role="img" aria-label="Comparison of run directories versus distinct measurements"></svg>
       </div>
       <div class="card reveal">
-        <h3>Why 46 directories are 43 measurements</h3>
+        <h3>Why <span data-count="dirs">46</span> directories are <span data-count="measurements">43</span> measurements</h3>
         <p style="margin-bottom:1rem">
           The auditor fingerprints the evaluation-phase answers of every run and collapses anything
           that cannot be told apart.
@@ -447,10 +446,10 @@ python ops/panel_coverage.py \
 
     <div class="grid-3 reveal" style="margin-top:1rem">
       <div class="card"><h3>For AI answer engines</h3><p>A plain-language summary of every claim on
-        this page, with the numbers, lives in <a href="llms.txt"><code>llms.txt</code></a>.</p></div>
+        this page, with the numbers, lives in <a href="llms.txt"><code>llms.txt</code></a>, and the complete results in one document in <a href="llms-full.txt"><code>llms-full.txt</code></a>.</p></div>
       <div class="card"><h3>Structured data</h3><p>This page ships JSON-LD for the dataset, the
         publisher and the FAQ, so the figures can be cited rather than paraphrased.</p></div>
-      <div class="card"><h3>Contribute a measurement</h3><p>Seven panel entries still need an
+      <div class="card"><h3>Contribute a measurement</h3><p>Eight panel entries still need an
         adapter. The acceptance checklist and per-model VRAM estimates are in
         <code>docs/panel-hardware-requirements.md</code>.</p></div>
     </div>
@@ -468,6 +467,7 @@ python ops/panel_coverage.py \
       <h3>Data</h3>
       <p><a href="data/results.json">results.json</a><br>
          <a href="llms.txt">llms.txt</a><br>
+         <a href="llms-full.txt">llms-full.txt</a><br>
          <a href="https://github.com/instax-dutta/sysone-bench">repository</a></p>
     </div>
     <div>

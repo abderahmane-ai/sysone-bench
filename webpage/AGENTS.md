@@ -18,6 +18,11 @@
   measurement rather than publishing it.
 - Counts come from `ops/panel_coverage.py` so the site cannot drift from the repository's coverage
   number. Never hand-type a count, score, or total into markup.
+- Copy counts use `<span data-count="key">`. `app.js` fills them from `results.json` using the keys
+  `measurements`, `dirs`, `decisions`, `suites`, `scope`, `unmeasured`. The inner text is only a
+  no-JS fallback and is expected to drift; it is never the source of truth.
+- Share metadata in `<head>` and anything inside JSON-LD cannot be data-driven in a buildless site.
+  Those must carry no count or score that changes when a model is added. Keep them method-level.
 - Site counts must stay internally consistent: 43 distinct measurements, 46 verified run directories,
   51-entry scope, so 8 entries are unmeasured and each needs a recorded reason in `app.js` `EXCLUDED`
   and in `llms.txt`.

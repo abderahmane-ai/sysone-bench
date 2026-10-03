@@ -537,6 +537,20 @@ function hydrate() {
       <p style="font-size:.85rem">${detail}</p>
     </div>`).join("");
 
+  // Every count in the copy is filled from the generated data, never hand-typed.
+  const counts = {
+    measurements: D.distinctMeasurements,
+    dirs: D.runDirectoriesVerified,
+    decisions: D.decisions.toLocaleString("en-US"),
+    suites: D.suites.length,
+    scope: D.scopeTotal,
+    unmeasured: D.scopeTotal - D.distinctMeasurements,
+  };
+  document.querySelectorAll("[data-count]").forEach((el) => {
+    const v = counts[el.dataset.count];
+    if (v !== undefined) el.textContent = String(v);
+  });
+
   A("#foot-count").textContent =
     `${D.distinctMeasurements} measured, ${D.scopeTotal - D.distinctMeasurements} not measured.`;
 
