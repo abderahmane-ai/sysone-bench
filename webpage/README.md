@@ -37,16 +37,23 @@ dropped rather than shown.
 
 ## Social image and icons
 
-`og.png` is rendered from `data/results.json` by a headless-Chromium pass, so the numbers on the card
-cannot drift from the published results. It uses the same paper, ink, oxblood accent and type as the
-site. Regenerate it whenever the data changes:
+`og.png` is rendered by a headless-Chromium pass, using the same paper, ink, oxblood accent and type
+as the site. It deliberately prints no volatile fact: no model count, no best open score, no ranking.
+A social card is a static PNG, so any of those would be a false claim the moment a new model is
+measured. It carries the stable method facts only - sealed case count, scored decisions per model,
+closed-API reference, seed - and lists the nine suites as a ruled list rather than as bars,
+because equal-length bars would assert a magnitude that does not exist.
+
+Regenerate it if the method framing changes, using these constraints:
 
 1. Build a 1200x630 HTML card that reads `data/results.json` for the model count, best open score,
    closed reference and decision count, and draws the top scores as a ranked strip normalised across
    the displayed range.
 2. Screenshot it at 1200x630 with the viewport matched, and assert `scrollHeight <= 630` and that the
    footer sits above the fold. An earlier pass silently clipped the stats.
-3. `apple-touch-icon.png` and `icon-512.png` are the same mark rendered at 180 and 512 with the
+3. Assert the frame: `scrollHeight <= 630`, `scrollWidth <= 1200`, the footer sits above the fold, and
+   the stats block does not collide with the footer rule.
+4. `apple-touch-icon.png` and `icon-512.png` are the same mark rendered at 180 and 512 with the
    wrapper sized to the viewport. A fixed-size wrapper leaves the mark in the corner of a larger canvas.
 
 All four files are committed assets. Serving the site still requires no build step.

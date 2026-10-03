@@ -41,8 +41,15 @@
 - No secrets, tokens, or keys in this directory. `vercel.json` carries headers and caching only.
 - `favicon.svg` is the icon source of truth. `icon-512.png` and `apple-touch-icon.png` are rasters of
   it, and the touch icon must stay full-bleed because iOS applies its own mask.
-- `og.png` must be regenerated from `data/results.json` whenever the data changes. Never type a score
-  into the card by hand. It is 1200x630 and nothing may overflow that frame.
+- `og.png` is a static PNG, so anything printed on it goes stale the moment another model lands.
+  It must therefore claim **no volatile fact**: not the measurement count, not the best open score,
+  not any ranking or top-N. It carries only the stable method facts: sealed case count, scored
+  decisions per model, closed-API reference, seed. Do not add a count back without also solving
+  per-deploy card regeneration.
+- Never draw a magnitude the data does not support. Equal-length bars for the nine suites were
+  removed for exactly this reason; the suites are listed as a ruled list instead.
+- Never type a score into the card by hand. It is 1200x630 and nothing may overflow that frame or
+  collide with the footer rule; assert both.
 - `llms-full.txt` is generated from `data/results.json`. It is the single self-contained answer source
   for AI engines and must never be hand-edited or left to drift from the site. Regenerate it whenever
   the data changes, alongside `og.png`.
