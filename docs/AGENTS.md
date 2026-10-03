@@ -4,6 +4,10 @@
 # Ownership
 - `superpowers/specs/` contains approved design documents.
 - Implementation plans and their execution records belong here when they affect durable project contracts.
+- `decision-index-panel-coverage.md` records the expanded panel scope: measured, out-of-scope, and unreachable entries.
+- `session-handoff-2026-10-03.md` records what was verified, what was lost to session death, and the exact resume steps for the 2x T4 work.
+- `panel-hardware-requirements.md` records per-model VRAM estimates, the sharding result, and the acceptance checklist for contributed measurements.
+- `decision-index-panel-coverage.md` carries the measured results table; its counts come from `ops/panel_coverage.py` and must not be edited by hand.
 
 # Local Contracts
 - Design documents state approved scope, invariants, data flow, verification, and acceptance criteria.

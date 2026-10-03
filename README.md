@@ -10,6 +10,49 @@ There was no way to check cross-vendor claims before this. Laya's author had no 
 access, and the published vendor numbers come from different prompts. Two numbers from
 different prompts are not a comparison.
 
+## Expanded panel: 43 of 51 measured
+
+The three-model result below is the sealed v2.0.0 release. Since then the scope was widened to the
+Decision Index 0.2.1 panel, and **43 distinct measurements** are complete against the same sealed
+manifest.
+
+Counts are derived by `ops/panel_coverage.py` from finished run directories, never from a
+hand-kept tally. It verifies every artifact against its own `checksums.sha256` and fingerprints
+the evaluation-phase answers, so repeat runs and identical runs collapse instead of inflating the
+number. It found 46 verified directories but only **43** distinct measurements:
+
+| Runner | Directories | Counted once because |
+| :--- | :--- | :--- |
+| `decider-2b` | `decider-2b-t4-c0`, `decider-2b-t4-d0` | one retried run, both 0.7895 |
+| `tev1-08b` | `tev1-08b-20261002`, `tev1-08b-t4-g1` | the CPU fp32 and T4 fp16 cross-host pair, 0.7629 and 0.7734 |
+| `mini-jev`, `openvons` | two separate runners | byte-identical on all 1240 evaluation decisions |
+
+### Strongest results
+
+| model | accuracy | notes |
+|---|---|---|
+| `kev-4b` | 0.8556 | 4B, best overall |
+| `jpt-9b` | 0.8548 | |
+| `jet` | 0.8524 | |
+| `jevk5` | 0.8508 | |
+| `intern-decision-4b` | 0.8460 | |
+| `tev1-4b` | 0.8460 | |
+| `decider-4b` | 0.8411 | |
+| `neohorse-4b` | 0.8266 | |
+| `decision-nox` | 0.8048 | |
+| `hopper-g` | 0.7911 | matches the vendor's self-reported board score |
+
+Full 43-row table with scoring method and provenance flags:
+[`docs/decision-index-panel-coverage.md`](docs/decision-index-panel-coverage.md).
+
+Two caveats carried in the table rather than hidden:
+
+- Rows marked **technique reimpl.** are our reading of a published method over a public base
+  checkpoint, not the authors' code. `mini-jev` and `openvons` share a base and agree on every
+  decision, which is what an insensitive prompt looks like.
+- `pngwn` scored 0.2734 but its vendor never published the prompt format its scorer was trained on.
+  Treat it as unresolved rather than as a measurement of the model.
+
 ## Result
 
 Evaluation split, 952 cases and 1,240 scored decisions. Raw manifest bytes
@@ -27,7 +70,10 @@ correction. Triage is the exception: +0.057 with a permutation p of 0.0627, so w
 claim it. Per-suite numbers, paired intervals and figures are in
 [the report](results/v2/report-20260926/REPORT.md).
 
-![Evaluation accuracy by suite](results/v2/report-20260926/figures/suite-accuracy.png)
+<!-- Figures are withheld from the README while the expanded panel is measured. Numbers only for
+     now. The rendered charts and their source rows stay in
+     results/v2/report-20260926/figures/, regenerated from validated rows by
+     benchmark/graphics.py; nothing there is hand-drawn. -->
 
 ## How the ground truth was made
 

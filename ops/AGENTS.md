@@ -21,3 +21,6 @@
 
 # Child DOX Index
 - `remote/` - shared-host isolation, capacity gates, and one-shot secret transport.
+
+- `remote/` - isolated remote execution, worker safety, and transient secret transport. Owns the remote execution boundary and its configuration contract.
+- `panel_coverage.py` - derives distinct-measurement coverage from finished run artifacts and detects identical-prediction collisions. The panel count is never maintained by hand; regenerate it with this tool.
