@@ -29,6 +29,26 @@ dropped rather than shown.
 | `robots.txt` | Explicitly permits GPTBot, ClaudeBot, PerplexityBot and others |
 | `sitemap.xml` | Single-URL sitemap |
 | `vercel.json` | Security headers, asset caching, CORS on the data file |
+| `favicon.svg` | Icon mark: three ranked bars in oxblood on paper. Source of truth for the icon |
+| `icon-512.png` | Raster of `favicon.svg` at 512, for manifest and social fallbacks |
+| `apple-touch-icon.png` | Full-bleed 180 square. iOS applies its own mask, so no pre-rounded corners |
+| `og.png` | 1200x630 social card |
+
+## Social image and icons
+
+`og.png` is rendered from `data/results.json` by a headless-Chromium pass, so the numbers on the card
+cannot drift from the published results. It uses the same paper, ink, oxblood accent and type as the
+site. Regenerate it whenever the data changes:
+
+1. Build a 1200x630 HTML card that reads `data/results.json` for the model count, best open score,
+   closed reference and decision count, and draws the top scores as a ranked strip normalised across
+   the displayed range.
+2. Screenshot it at 1200x630 with the viewport matched, and assert `scrollHeight <= 630` and that the
+   footer sits above the fold. An earlier pass silently clipped the stats.
+3. `apple-touch-icon.png` and `icon-512.png` are the same mark rendered at 180 and 512 with the
+   wrapper sized to the viewport. A fixed-size wrapper leaves the mark in the corner of a larger canvas.
+
+All four files are committed assets. Serving the site still requires no build step.
 
 ## Local preview
 

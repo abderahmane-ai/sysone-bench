@@ -39,6 +39,13 @@
 - Reveal animations must resolve to full opacity in both normal and `prefers-reduced-motion` modes.
   No content may be left stranded invisible.
 - No secrets, tokens, or keys in this directory. `vercel.json` carries headers and caching only.
+- `favicon.svg` is the icon source of truth. `icon-512.png` and `apple-touch-icon.png` are rasters of
+  it, and the touch icon must stay full-bleed because iOS applies its own mask.
+- `og.png` must be regenerated from `data/results.json` whenever the data changes. Never type a score
+  into the card by hand. It is 1200x630 and nothing may overflow that frame.
+- Every path declared in a `<link rel="icon">`, `apple-touch-icon`, or `og:image` tag must resolve to a
+  committed file. An advertised-but-missing `og.png` is a broken share card, so verify each returns
+  HTTP 200 after adding it.
 
 ## Work Guidance
 - Design direction is an editorial data essay: warm paper, near-black ink, hairline rules, no cards,
@@ -69,6 +76,8 @@
   compare-top-5 view is the only place five data colours appear, so it is the regression check for
   the bar-fill layering.
 - Confirm `build-data.py` reproduces `data/results.json` byte-identically apart from intended key changes.
+- Verify `favicon.svg`, `icon-512.png`, `apple-touch-icon.png` and `og.png` all return HTTP 200, and
+  that the icon is legible at 16px.
 - Grep the directory for removed branding before publishing.
 
 ## Child DOX Index

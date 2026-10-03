@@ -8,6 +8,12 @@
 <link rel="canonical" href="https://sysone.sdad.pro/">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 
+<!-- Icons: an SVG mark for modern browsers, raster fallbacks for iOS home screen -->
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icon-512.png" sizes="512x512" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#f2efe9">
+
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="sysone-bench">
@@ -15,8 +21,14 @@
 <meta property="og:description" content="43 System One decision models measured against one sealed manifest at seed 42. Closed API reference 0.9065; best open model 0.8556.">
 <meta property="og:url" content="https://sysone.sdad.pro/">
 <meta property="og:image" content="https://sysone.sdad.pro/og.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="sysone-bench: 43 models, the same bytes. Best open weights 0.8556, closed reference 0.9065, 1,240 decisions each.">
 
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://sysone.sdad.pro/og.png">
+<meta name="twitter:image:alt" content="43 System One decision models graded against one sealed manifest.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,7 +57,9 @@
       "@id": "https://sysone.sdad.pro/#org",
       "name": "sysone-bench",
       "url": "https://sysone.sdad.pro/",
-      "description": "Independent benchmarking of System One decision models with no vendor affiliation."
+      "description": "Independent benchmarking of System One decision models with no vendor affiliation.",
+      "logo": "https://sysone.sdad.pro/icon-512.png",
+      "image": "https://sysone.sdad.pro/og.png"
     },
     {
       "@type": "Dataset",
@@ -53,6 +67,7 @@
       "name": "sysone-bench v2 sealed manifest and panel measurements",
       "description": "A sealed 1,190-case manifest of typed decision questions plus 43 independent measurements of System One decision models, covering 1,240 evaluation decisions per model.",
       "url": "https://sysone.sdad.pro/",
+      "image": "https://sysone.sdad.pro/og.png",
       "creator": { "@id": "https://sysone.sdad.pro/#org" },
       "keywords": [
         "decision models","System One","benchmark","evaluation","LLM evaluation",
