@@ -22,8 +22,8 @@ dropped rather than shown.
 | File | Purpose |
 |---|---|
 | `index.html` | Structure and JSON-LD (dataset, publisher, FAQ) |
-| `style.css` | Design tokens and layout. One accent hue re-hued per section band |
-| `app.js` | Hand-built SVG charts, filters, reveal-on-scroll |
+| `style.css` | Editorial design system: paper, ink, hairlines. One oxblood accent |
+| `app.js` | Hand-built SVG charts, ranked field list, filters, reveal-on-scroll |
 | `data/results.json` | Generated. Do not edit by hand |
 | `llms.txt` | Plain-language summary for AI answer engines |
 | `robots.txt` | Explicitly permits GPTBot, ClaudeBot, PerplexityBot and others |
@@ -37,14 +37,18 @@ dropped rather than shown.
 Then open `http://127.0.0.1:8899`. A server is required, not `file://`, because `app.js` fetches
 `data/results.json`.
 
+## Design
+
+An editorial data essay. Warm paper, near-black ink, hairline rules, no cards, no shadows, no grain.
+Newsreader for prose, IBM PlexMono for every number. The numbers are the graphic.
+
 ## Charts
 
 Five, all inline SVG built by `app.js`:
 
-1. **Leaderboard** - all 43 measurements as horizontal bars, with the closed-API reference drawn as
-   a dashed rule behind them so the gap is visible rather than stated
+1. **Field** - all 43 measurements as a ranked list with hairline bars, plus a strip plot in the hero
 2. **Per-suite** - grouped bars for one model, or the top five
-3. **Heatmap** - 43 models against 9 suites
+3. **Heatmap** - 43 models against 9 suites, horizontally scrollable
 4. **Precision** - tev1-08b on CPU fp32 against T4 fp16, on a truncated axis that says so
 5. **Coverage** - verified directories against distinct measurements
 

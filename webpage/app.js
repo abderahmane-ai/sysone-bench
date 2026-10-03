@@ -255,7 +255,7 @@ function drawCards() {
       monogram(r.runner) +
       '<span class="nm">' + r.runner + '</span>' +
       '<span class="model-track"><i style="width:' + (((r.accuracy - lo) / (hi - lo)) * 100).toFixed(1) +
-        '%;background:' + colour(r) + '"></i></span>' +
+        '%;background:' + (r.techniqueReimplementation ? "var(--caveat)" : "var(--ink)") + '"></i></span>' +
       '<span class="acc" style="color:' + colour(r) + '">' + r.accuracy.toFixed(4) + '</span>' +
       '<span class="model-flags">' + flags + '</span>';
     row.addEventListener("click", () => {
@@ -295,7 +295,7 @@ function drawMultiples() {
       pct(top[0] ? top[0].suites[suite] : 0) + '% \u00b7 spread ' + pct(spread) + '</div>';
     host.append(box);
 
-    const w = 220, rowH = 13, padL = 78, padR = 34;
+    const w = 300, rowH = 13, padL = 112, padR = 38;
     const h = top.length * rowH + 6;
     const svg = el("svg", { viewBox: "0 0 " + w + " " + h, role: "img" });
     svg.setAttribute("aria-label", "Top five models on " + suite);
@@ -304,7 +304,7 @@ function drawMultiples() {
     top.forEach((r, i) => {
       const y = i * rowH + 2;
       const lab = el("text", { x: 0, y: y + 9, class: "bar-label" });
-      lab.textContent = r.runner.length > 13 ? r.runner.slice(0, 12) + "\u2026" : r.runner;
+      lab.textContent = r.runner.length > 16 ? r.runner.slice(0, 15) + "\u2026" : r.runner;
       svg.append(lab);
       const bw = Math.max(1, x(r.suites[suite]) - padL);
       const bar = el("rect", { x: padL, y: y + 2, width: bw, height: rowH - 5, rx: 2, fill: colour(r) });
@@ -616,7 +616,13 @@ function wire() {
 
   gsap.registerPlugin(ScrollTrigger);
 
-  const lenis = new Lenis({ duration: 1.15, smoothWheel: true, touchMultiplier: 1.6 });
+  const lenis = new Lenis({
+    lerp: 0.11,
+    smoothWheel: true,
+    syncTouch: false,
+    wheelMultiplier: 1,
+    touchMultiplier: 1.4,
+  });
   lenis.on("scroll", ScrollTrigger.update);
   gsap.ticker.add((time) => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
