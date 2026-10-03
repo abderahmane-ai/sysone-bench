@@ -83,7 +83,7 @@ per row instead of treated as constant.
   1,240 evaluation decisions, sharing base checkpoint `Qwen/Qwen3-4B-Instruct-2507` at revision
   `cdbee75f17c01a7cc42f958dc650907174af0554`
 
-Eight panel entries were not measured, each with a recorded reason:
+Eight candidate entries were assembled but not measured, each with a recorded reason:
 
 | Entry | Reason |
 |---|---|

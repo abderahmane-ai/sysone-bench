@@ -25,9 +25,12 @@ def main() -> int:
     if not RESULTS_ROOT.is_dir():
         print(f"no results root at {RESULTS_ROOT}", file=sys.stderr)
         return 1
+    # Resolve the auditor relative to this file, not the caller's cwd, so the
+    # site can be regenerated from the repo root or from webpage/ alike.
+    auditor = Path(__file__).resolve().parent.parent / "ops" / "panel_coverage.py"
     coverage = json.loads(
         subprocess.run(
-            ["python3", "ops/panel_coverage.py", "--results-root", str(RESULTS_ROOT), "--json"],
+            [sys.executable, str(auditor), "--results-root", str(RESULTS_ROOT), "--json"],
             capture_output=True, text=True, check=True,
         ).stdout
     )
@@ -86,7 +89,6 @@ def main() -> int:
         "decisions": 1240,
         "seed": 42,
         "datasetVersion": "2.0.0",
-        "panelEdition": "Decision Index 0.2.1",
         "suites": SUITES,
         "scopeTotal": 51,
         "runDirectoriesVerified": coverage["run_directories_verified"],

@@ -6,7 +6,6 @@
  "decisions": 1240,
  "seed": 42,
  "datasetVersion": "2.0.0",
- "panelEdition": "Decision Index 0.2.1",
  "suites": [
   "agnews",
   "banking77_12",

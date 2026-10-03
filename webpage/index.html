@@ -20,7 +20,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="style.css">
 <script>document.documentElement.classList.add("js");</script>
 
@@ -116,6 +116,11 @@
 
 <a class="skip" href="#leaderboard">Skip to results</a>
 
+<div class="rail" id="rail" aria-hidden="true">
+  <div class="rail-ticks" id="rail-ticks"></div>
+  <div class="rail-seal">sealed · 1190 cases · 1240 decisions · seed 42</div>
+</div>
+
 <nav class="nav">
   <div class="wrap nav-in">
     <a class="nav-brand" href="/">sysone<span>-bench</span></a>
@@ -132,8 +137,7 @@
 
 <header class="hero">
   <div class="wrap">
-    <p class="eyebrow">Independent · no vendor access</p>
-    <h1>Every System One model, graded on the <em>same bytes</em>.</h1>
+    <h1 class="hero-title">Every System One model, graded on the <em>same bytes</em>.</h1>
     <p class="hero-lede">
       Self-reported scores are not comparable, because each one comes from its own prompt. So we
       ignore them. Every model here is run by us, against the same <strong>1,190 sealed cases</strong>
@@ -141,7 +145,8 @@
       before a single number is read.
     </p>
 
-    <div class="hero-grid">
+    <div class="readout-band">
+      <div class="wrap">
       <dl class="proof">
         <div>
           <dt>Models measured</dt>
@@ -165,7 +170,7 @@
         </div>
       </dl>
 
-      <figure class="chart" style="margin:0">
+      <figure class="chart readout-plot" style="margin:0">
         <figcaption class="chart-head">
           <h3>Where the field sits</h3>
           <p>Each mark is one model, on accuracy.</p>
@@ -178,6 +183,7 @@
           <div><i style="background:var(--closed)"></i> Jev 1.13.0</div>
         </div>
       </figure>
+      </div>
     </div>
   </div>
 </header>
@@ -185,7 +191,6 @@
 <section data-band="leaderboard" id="leaderboard">
   <div class="wrap">
     <div class="band-head reveal">
-      <p class="eyebrow">Overall accuracy</p>
       <h2>The full field, not a curated top ten</h2>
       <p>
         All 43 measurements, ranked by accuracy on the 1,240 evaluation decisions. Rows marked as
@@ -217,7 +222,6 @@
 <section data-band="suites" id="suites">
   <div class="wrap">
     <div class="band-head reveal">
-      <p class="eyebrow">Per-suite breakdown</p>
       <h2>Where models agree, and where they diverge</h2>
       <p>
         Nine suites, from single-label text classification to moderation and multilingual intent.
@@ -269,7 +273,6 @@
 <section data-band="precision" id="precision">
   <div class="wrap">
     <div class="band-head reveal">
-      <p class="eyebrow">Measurement validity</p>
       <h2>One direct read on precision cost</h2>
       <p>
         Every GPU row on this site is bf16 and every CPU row is fp32. That difference is usually
@@ -307,7 +310,6 @@
 <section data-band="coverage" id="coverage">
   <div class="wrap">
     <div class="band-head reveal">
-      <p class="eyebrow">What is missing, and why</p>
       <h2>Eight entries, each with a recorded reason</h2>
       <p>
         Coverage is derived from finished run directories by a script, never by hand. That audit is
@@ -340,12 +342,11 @@
 <section data-band="method" id="method">
   <div class="wrap">
     <div class="band-head reveal">
-      <p class="eyebrow">Protocol</p>
       <h2>What makes a number on this site trustworthy</h2>
     </div>
 
-    <div class="grid-3">
-      <div class="card reveal">
+    <div class="grid-2 reveal">
+      <div class="card reveal wide">
         <h3>One sealed manifest</h3>
         <p>1,190 cases and 1,550 typed questions, digest verified before every run. No model sees a
         different question set than any other.</p>
@@ -395,7 +396,6 @@
 <section data-band="data" id="data">
   <div class="wrap">
     <div class="band-head reveal">
-      <p class="eyebrow">Reproduce it</p>
       <h2>The whole dataset is one JSON file</h2>
       <p>
         Every number, chart and table on this page is rendered from
@@ -460,6 +460,9 @@ python ops/panel_coverage.py \
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

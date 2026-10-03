@@ -18,6 +18,23 @@ const fixed = (x, n = 4) => (x === null || x === undefined ? "—" : Number(x).t
 let D = null;
 let state = { filter: "all", sort: "accuracy", model: null, compare: "none" };
 
+/* ------------------------------------------------------------- monogram */
+const HUES = [188, 205, 262, 320, 12, 32, 48, 78, 142];
+function modelHue(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return HUES[h % HUES.length];
+}
+function monogram(name) {
+  const parts = name.replace(/[^a-z0-9]+/gi, "-").split("-").filter(Boolean);
+  const letters = (parts.length > 1
+    ? parts[0][0] + parts[1][0]
+    : name.replace(/[^a-z0-9]/gi, "").slice(0, 2)).toUpperCase();
+  const hue = modelHue(name);
+  return '<span class="mono-mark" style="--mark:hsl(' + hue + ' 62% 58%);--mark-ink:hsl(' +
+    hue + ' 70% 88%)">' + letters + "</span>";
+}
+
 /* ------------------------------------------------------------------ load */
 function fail(err) {
   // Never leave the reader with a blank document. Show the cause, and un-hide every section.
@@ -167,9 +184,9 @@ function drawSuites() {
   const series = pick.filter(Boolean);
   const suites = D.suites;
 
-  const padL = 46, padR = 16, padT = 18, padB = 58;
+  const padL = 46, padR = 16, padT = 18, padB = 88;
   const w = 1000;
-  const h = 300;
+  const h = 330;
   svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
 
   const plotH = h - padT - padB;
@@ -189,18 +206,18 @@ function drawSuites() {
     series.forEach((r, ri) => {
       const v = r.suites[s];
       if (v === undefined) return;
-      const bw = (band * 0.72) / series.length;
-      const x0 = bx + band * 0.14 + ri * bw;
+      const bw = Math.min(44, (band * 0.6) / series.length);
+      const x0 = bx + (band - bw * series.length) / 2 + ri * bw;
       const rect = el("rect", {
-        x: x0, y: y(v), width: Math.max(1, bw - 2), height: Math.max(1, plotH - (y(v) - padT)),
-        rx: 2, fill: hues[ri % hues.length], class: "bar",
+        x: x0, y: y(v), width: Math.max(1, bw - 3), height: Math.max(1, plotH - (y(v) - padT)),
+        rx: 3, fill: hues[ri % hues.length], "fill-opacity": .82, class: "bar",
       });
       rect.appendChild(el("title")).textContent = `${r.runner} · ${s} · ${pct(v)}%`;
       svg.append(rect);
     });
     const tick = el("text", {
       x: bx + band / 2, y: h - padB + 16, class: "axis-label", "text-anchor": "end",
-      transform: `rotate(-42 ${bx + band / 2} ${h - padB + 16})`,
+      transform: `rotate(-34 ${bx + band / 2} ${h - padB + 16})`,
     });
     tick.textContent = s;
     svg.append(tick);
@@ -235,6 +252,7 @@ function drawCards() {
     ].join("");
     row.innerHTML =
       '<span class="rk">' + (i + 1) + '</span>' +
+      monogram(r.runner) +
       '<span class="nm">' + r.runner + '</span>' +
       '<span class="model-track"><i style="width:' + (((r.accuracy - lo) / (hi - lo)) * 100).toFixed(1) +
         '%;background:' + colour(r) + '"></i></span>' +
@@ -479,6 +497,7 @@ const EXCLUDED = [
   ["winnow-e4b", "GGUF only", "A vision-language checkpoint published solely as GGUF. Needs a different runtime."],
   ["clm-v0.1-8b", "Contrastive reranker", "Scores state-answer pairs rather than producing typed decisions."],
   ["jeff", "Loader detail unresolved", "Weights are public and small. The adapter is written; a package loader path needs fixing."],
+  ["winnow-12b", "Exceeds available hardware", "22.3 GiB of bf16 weights. No single device on hand holds it."],
 ];
 
 function hydrate() {
@@ -569,27 +588,61 @@ function wire() {
     });
   });
 
-  if (!("IntersectionObserver" in window)) {
-    document.querySelectorAll(".reveal").forEach((n) => n.classList.add("in"));
-    return;
-  }
   const nodes = Array.from(document.querySelectorAll(".reveal"));
   const show = (n) => n.classList.add("in");
+  nodes.forEach(show);
 
-  if (typeof IntersectionObserver !== "function") {
-    nodes.forEach(show);
-    return;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const hasGsap = typeof window.gsap !== "undefined";
+
+  // Rail: ticks mark the accuracy scale, and the scale marker tracks the scroll position.
+  const ticks = document.getElementById("rail-ticks");
+  const rail = document.getElementById("rail");
+  if (ticks) {
+    [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].forEach((t) => {
+      const row = document.createElement("div");
+      const major = Math.round(t * 10) % 2 === 0;
+      row.className = "rail-tick" + (major ? " major" : "");
+      row.style.flex = "1 1 0";
+      row.innerHTML = "<b>" + t.toFixed(1) + "</b><i></i>";
+      ticks.append(row);
+    });
   }
-  const io = new IntersectionObserver(
-    (entries) => entries.forEach((e) => {
-      if (e.isIntersecting) { show(e.target); io.unobserve(e.target); }
-    }),
-    { rootMargin: "0px 0px -8% 0px" }
-  );
-  nodes.forEach((n) => io.observe(n));
+  if (rail) rail.classList.add("on");
 
-  // Failsafe. Content must never depend on an animation firing, and a reader who lands
-  // mid-page or whose browser defers the observer should still see everything. Anything
-  // still hidden a moment after load is shown regardless of observer state.
-  window.setTimeout(() => nodes.forEach(show), 1500);
+  // Smooth scrolling via Lenis, driven by GSAP's ticker so ScrollTrigger stays in step with it.
+  // GSAP's own ScrollSmoother is a Club plugin and is not on the public CDN, so Lenis stands in.
+  if (!hasGsap || reduced || typeof Lenis === "undefined") return;
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const lenis = new Lenis({ duration: 1.15, smoothWheel: true, touchMultiplier: 1.6 });
+  lenis.on("scroll", ScrollTrigger.update);
+  gsap.ticker.add((time) => lenis.raf(time * 1000));
+  gsap.ticker.lagSmoothing(0);
+  document.querySelectorAll('a[href^="#"]').forEach((a) => {
+    a.addEventListener("click", (e) => {
+      const id = a.getAttribute("href");
+      if (!id || id === "#") return;
+      const target = document.querySelector(id);
+      if (!target) return;
+      e.preventDefault();
+      lenis.scrollTo(target, { offset: -70, duration: 1.2 });
+    });
+  });
+
+  gsap.utils.toArray(".reveal").forEach((node) => {
+    gsap.fromTo(node, { y: 26, opacity: 0 }, {
+      y: 0, opacity: 1, duration: 0.9, ease: "power3.out",
+      scrollTrigger: { trigger: node, start: "top 88%", once: true },
+    });
+  });
+
+  // The measurement rail tracks reading position, so it reads as an instrument rather than trim.
+  if (rail) {
+    gsap.to(rail, {
+      scrollTrigger: { trigger: document.body, start: "top top", end: "bottom bottom", scrub: 0.4 },
+      opacity: 1, ease: "none",
+    });
+  }
 }
