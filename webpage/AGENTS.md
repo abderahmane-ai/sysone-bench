@@ -31,6 +31,11 @@
 - The closed-API reference is drawn as a labelled rule or row, never merged into the open-weights ranking.
 - No composite or averaged cross-suite score. No radar chart. Suite spread is shown per suite instead.
 - Truncated axes must state the truncation on the chart itself.
+- A measurement whose scoring path is listed in `READOUT_CAVEAT_PATHS` in `build-data.py` must carry
+  `readoutCaveat: true`, derived from the run's own scoring field. Never hand-list runner names.
+- An unresolved measurement-validity question must be published as a caveat on the affected rows
+  rather than left implicit, and must state what is confirmed versus merely suspected. Adding a
+  caveat changes no number and requires no re-run; say so on the page.
 - Charts are hand-built inline SVG in `app.js`. Keep them accessible: `role`, `aria-label`, and a
   `<title>` per mark.
 - Smooth scrolling uses Lenis plus GSAP ScrollTrigger. GSAP `ScrollSmoother` is a paid Club plugin and

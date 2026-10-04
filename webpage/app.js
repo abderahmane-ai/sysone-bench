@@ -234,6 +234,17 @@ function drawSuites() {
 }
 
 /* --------------------------------------------------------- ranked list */
+function drawReadoutCaveat() {
+  const host = A("#readout-caveat");
+  const c = D.readoutCaveat;
+  if (!host || !c) return;
+  const n = (D.measurements || []).filter((r) => r.readoutCaveat).length;
+  if (!n) { host.remove(); return; }
+  host.innerHTML =
+    '<div class="k">Readout caveat &middot; ' + n + ' of ' + D.distinctMeasurements + ' rows</div>' +
+    '<p>' + c.note + ' <a href="' + c.confirmedBy + '">Thread with the authors</a>.</p>';
+}
+
 function drawCards() {
   const grid = A("#model-grid");
   if (!grid) return;
@@ -249,6 +260,7 @@ function drawCards() {
       r.sharding ? '<span class="pill">shard</span>' : "",
       r.techniqueReimplementation ? '<span class="pill">reimpl.</span>' : "",
       r.runner === "pngwn" ? '<span class="pill">unresolved</span>' : "",
+      r.readoutCaveat ? '<span class="pill caveat" title="Scored per option independently; may under-report a model trained to answer with restricted label codes">readout</span>' : "",
     ].join("");
     row.innerHTML =
       '<span class="rk">' + (i + 1) + '</span>' +
@@ -562,6 +574,7 @@ function hydrate() {
 
 function drawAll() {
   drawStrip();
+  drawReadoutCaveat();
   drawCards();
   drawSuites();
   drawMultiples();

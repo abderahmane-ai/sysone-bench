@@ -17,6 +17,14 @@
   "sst5",
   "triage"
  ],
+ "readoutCaveat": {
+  "scorings": [
+   "per_option_conditional_logprob"
+  ],
+  "confirmedOn": "lev",
+  "confirmedBy": "https://huggingface.co/interfaze-ai/lev/discussions/1",
+  "note": "These rows were scored by scoring each declared option independently. For a model trained to answer with label codes restricted in the next-token distribution, that is a different function of the same weights rather than a different implementation of the same one, and it can under-report the model. Confirmed for lev, whose authors measured 0.980 on banking77 in-distribution against our 0.7292 out-of-distribution, and who describe selecting by argmax over one-token label codes with two option orders averaged. We have not confirmed the same expectation for the other rows carrying this flag, so treat them as unqualified rather than known-low. No number here has been changed and no model has been re-run."
+ },
  "scopeTotal": 51,
  "runDirectoriesVerified": 46,
  "distinctMeasurements": 43,
@@ -66,7 +74,8 @@
     "multilingual_intent": 0.6732793470018805,
     "sst5": 0.4869046565017925,
     "triage": 1.2879705100003775
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "jpt-9b",
@@ -106,7 +115,8 @@
     "multilingual_intent": 3.121765261499604,
     "sst5": 3.0860089245006748,
     "triage": 11.49043778500004
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "jet",
@@ -146,7 +156,8 @@
     "multilingual_intent": 0.7520565014997374,
     "sst5": 0.7184889889999795,
     "triage": 2.100497089500095
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "jevk5",
@@ -186,7 +197,8 @@
     "multilingual_intent": 0.28869745700001204,
     "sst5": 0.23135787299986532,
     "triage": 1.0427885789999891
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "intern-decision-4b",
@@ -226,7 +238,8 @@
     "multilingual_intent": 0.857409550999364,
     "sst5": 0.8332756839990907,
     "triage": 1.3890405570009534
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "tev1-4b",
@@ -266,7 +279,8 @@
     "multilingual_intent": 0.16154592949988,
     "sst5": 0.15660151399993083,
     "triage": 0.4401868735001244
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "decider-4b",
@@ -306,7 +320,8 @@
     "multilingual_intent": 0.5163362179996511,
     "sst5": 2.426239391000081,
     "triage": 1.932067107499961
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "neohorse-4b",
@@ -346,7 +361,8 @@
     "multilingual_intent": 0.5187526125000659,
     "sst5": 0.3103035525004998,
     "triage": 1.5776303930001632
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "decision-nox",
@@ -386,7 +402,8 @@
     "multilingual_intent": 0.8371178109991888,
     "sst5": 0.6395857739998974,
     "triage": 2.436223747999975
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "this-that-12",
@@ -426,7 +443,8 @@
     "multilingual_intent": 2.4748050766065717,
     "sst5": 2.464682867284864,
     "triage": 2.900573627091944
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "hopper-g",
@@ -466,7 +484,8 @@
     "multilingual_intent": 0.15542040949912916,
     "sst5": 0.1561554520003483,
     "triage": 0.6231980264992671
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "decider-2b",
@@ -506,7 +525,8 @@
     "multilingual_intent": 0.4467334835001111,
     "sst5": 2.0299935390000883,
     "triage": 1.642238724000208
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "decision-sol",
@@ -546,7 +566,8 @@
     "multilingual_intent": 3.222894246224314,
     "sst5": 2.3973170365206897,
     "triage": 10.953603389207274
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "mini-jev",
@@ -586,7 +607,8 @@
     "multilingual_intent": 0.45496646049923584,
     "sst5": 0.38854082099987863,
     "triage": 0.8915263594990392
-   }
+   },
+   "readoutCaveat": true
   },
   {
    "runner": "nimble-v2",
@@ -626,7 +648,8 @@
     "multilingual_intent": 1.4325625649998983,
     "sst5": 1.4315152644994669,
     "triage": 4.44633075800084
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "intern-decision-2b",
@@ -666,7 +689,8 @@
     "multilingual_intent": 0.36239727200018024,
     "sst5": 0.34870468199983407,
     "triage": 0.5271919885001353
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "tev1-08b",
@@ -706,7 +730,8 @@
     "multilingual_intent": 0.06674401749978642,
     "sst5": 0.06729772299968317,
     "triage": 0.26320916450004006
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "kev-08b",
@@ -746,7 +771,8 @@
     "multilingual_intent": 0.08707916300022589,
     "sst5": 0.0559353009998631,
     "triage": 0.18799735799996142
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "metask",
@@ -786,7 +812,8 @@
     "multilingual_intent": 0.7885232250000627,
     "sst5": 0.6297107139998843,
     "triage": 1.254586979499436
-   }
+   },
+   "readoutCaveat": true
   },
   {
    "runner": "jpt-08b",
@@ -826,7 +853,8 @@
     "multilingual_intent": 0.16245674499987217,
     "sst5": 0.15728392499931942,
     "triage": 0.4691060570003174
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "decision-eos",
@@ -866,7 +894,8 @@
     "multilingual_intent": 1.467779581900686,
     "sst5": 1.1216103695333004,
     "triage": 5.092609973624349
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "bosun-17b",
@@ -906,7 +935,8 @@
     "multilingual_intent": 0.08784925749932881,
     "sst5": 0.08457774499947845,
     "triage": 0.40598527749989444
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "intern-decision-08b",
@@ -946,7 +976,8 @@
     "multilingual_intent": 0.15461417049937154,
     "sst5": 0.14518850599961297,
     "triage": 0.22439240150015394
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "decision-kai",
@@ -986,7 +1017,8 @@
     "multilingual_intent": 0.19329836312681437,
     "sst5": 0.1485371384769678,
     "triage": 0.959862113930285
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "gliner-decide",
@@ -1026,7 +1058,8 @@
     "multilingual_intent": 0.4954256587661803,
     "sst5": 0.4668656634166837,
     "triage": 1.7083578300662339
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "lavoir",
@@ -1066,7 +1099,8 @@
     "multilingual_intent": 0.06585417799942661,
     "sst5": 0.061949122000442,
     "triage": 0.21889525749975292
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "bosun-06b",
@@ -1106,7 +1140,8 @@
     "multilingual_intent": 4.265827044378966,
     "sst5": 3.1437037852592766,
     "triage": 11.668583705555648
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "laya",
@@ -1146,7 +1181,8 @@
     "multilingual_intent": 0.5571852135472,
     "sst5": 0.34553005592897534,
     "triage": 1.3629978806711733
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "gliner-base",
@@ -1186,7 +1222,8 @@
     "multilingual_intent": 0.15341976890340447,
     "sst5": 0.14203476626425982,
     "triage": 0.5205726926214993
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "gliner-multi",
@@ -1226,7 +1263,8 @@
     "multilingual_intent": 0.164664086420089,
     "sst5": 0.17321068095043302,
     "triage": 0.595372146461159
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "jobe",
@@ -1266,7 +1304,8 @@
     "multilingual_intent": 0.6400214565001079,
     "sst5": 0.6149267259988846,
     "triage": 1.2021247605007375
-   }
+   },
+   "readoutCaveat": true
   },
   {
    "runner": "decision-lex",
@@ -1306,7 +1345,8 @@
     "multilingual_intent": 0.19043852761387825,
     "sst5": 0.13748808670789003,
     "triage": 0.9601314743049443
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "lev",
@@ -1346,7 +1386,8 @@
     "multilingual_intent": 0.13831731649952417,
     "sst5": 0.13888422199943307,
     "triage": 0.531170249499155
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "verdict",
@@ -1386,7 +1427,8 @@
     "multilingual_intent": 0.02006075349981984,
     "sst5": 0.020319950000157405,
     "triage": 0.08191414499924576
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "gliner-small",
@@ -1426,7 +1468,8 @@
     "multilingual_intent": 0.06075983960181475,
     "sst5": 0.06124052405357361,
     "triage": 0.2287277840077877
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "mojev",
@@ -1466,7 +1509,8 @@
     "multilingual_intent": 3.9365898543037474,
     "sst5": 2.7338302079588175,
     "triage": 5.602745029143989
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "julia-1",
@@ -1506,7 +1550,8 @@
     "multilingual_intent": 0.028918370000610594,
     "sst5": 0.028603632999875117,
     "triage": 0.058433851499103184
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "lumma-fev-06b",
@@ -1546,7 +1591,8 @@
     "multilingual_intent": 2.939516917336732,
     "sst5": 1.4421747187152505,
     "triage": 10.099983653053641
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "harsha",
@@ -1586,7 +1632,8 @@
     "multilingual_intent": 0.30560257350043685,
     "sst5": 0.25626633950014366,
     "triage": 0.5941905584995766
-   }
+   },
+   "readoutCaveat": true
   },
   {
    "runner": "lumma-fev-01b",
@@ -1626,7 +1673,8 @@
     "multilingual_intent": 1.3679182035848498,
     "sst5": 0.6888099289499223,
     "triage": 4.644265817012638
-   }
+   },
+   "readoutCaveat": false
   },
   {
    "runner": "lfm2600",
@@ -1666,7 +1714,8 @@
     "multilingual_intent": 0.26560639050057944,
     "sst5": 0.22013443750074657,
     "triage": 0.47305762200085155
-   }
+   },
+   "readoutCaveat": true
   },
   {
    "runner": "lfm350",
@@ -1706,7 +1755,8 @@
     "multilingual_intent": 0.14799871450031787,
     "sst5": 0.12365115600005083,
     "triage": 0.28750075999960245
-   }
+   },
+   "readoutCaveat": true
   },
   {
    "runner": "pngwn",
@@ -1746,7 +1796,8 @@
     "multilingual_intent": 0.8413218340010644,
     "sst5": 0.7047449309993681,
     "triage": 1.5539991739988182
-   }
+   },
+   "readoutCaveat": false
   }
  ],
  "duplicates": {

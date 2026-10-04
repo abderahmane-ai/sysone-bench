@@ -20,6 +20,27 @@ from pathlib import Path
 # different roots, and so the site can be rebuilt against a freshly fetched mirror.
 _REPO = Path(__file__).resolve().parent.parent
 RESULTS_ROOT = Path(os.environ.get("SYSONE_RESULTS_ROOT") or _REPO / "results" / "raw").expanduser()
+
+# Scorings that score each declared option independently rather than restricting
+# the next-token distribution to the option codes. Kept as a set so the site can
+# derive the caveat from the data instead of a hand-typed list of runner names.
+READOUT_CAVEAT_PATHS = {"per_option_conditional_logprob"}
+
+READOUT_CAVEAT = {
+    "scorings": sorted(READOUT_CAVEAT_PATHS),
+    "confirmedOn": "lev",
+    "confirmedBy": "https://huggingface.co/interfaze-ai/lev/discussions/1",
+    "note": (
+        "These rows were scored by scoring each declared option independently. For a model "
+        "trained to answer with label codes restricted in the next-token distribution, that is a "
+        "different function of the same weights rather than a different implementation of the same "
+        "one, and it can under-report the model. Confirmed for lev, whose authors measured 0.980 on "
+        "banking77 in-distribution against our 0.7292 out-of-distribution, and who describe selecting "
+        "by argmax over one-token label codes with two option orders averaged. We have not confirmed "
+        "the same expectation for the other rows carrying this flag, so treat them as unqualified "
+        "rather than known-low. No number here has been changed and no model has been re-run."
+    ),
+}
 SUITES = [
     "agnews", "banking77_12", "emotion", "guardrails", "mnli",
     "moderation", "multilingual_intent", "sst5", "triage",
@@ -80,6 +101,11 @@ def main() -> int:
                 "latencyP50": {
                     k: suites[k].get("latency", {}).get("p50_seconds") for k in SUITES if k in suites
                 },
+                # Derived, never hand-listed: these rows were scored by scoring each
+                # declared option independently. For a model trained to answer with
+                # restricted label codes that is a different function, not a different
+                # implementation, and can under-report it. Confirmed in the thread below.
+                "readoutCaveat": info.get("scoring") in READOUT_CAVEAT_PATHS,
             }
 
     collisions = coverage["identical_prediction_collisions"]
@@ -95,6 +121,7 @@ def main() -> int:
         "seed": 42,
         "datasetVersion": "2.0.0",
         "suites": SUITES,
+        "readoutCaveat": READOUT_CAVEAT,
         "scopeTotal": 51,
         "runDirectoriesVerified": coverage["run_directories_verified"],
         "distinctMeasurements": coverage["distinct_measurements"],

@@ -171,6 +171,16 @@ Eight entries in the assembled candidate scope were not measured. Each has a rec
 
 ## Caveats, stated plainly
 
+- **Six of these 43 measurements carry an unresolved readout caveat.** `per_option_conditional_logprob`
+  scores each declared option independently. For a model trained to answer with label codes
+  restricted in the next-token distribution, that is a different function of the same weights
+  rather than a different implementation of the same one, and it can under-report the model.
+  Affected rows: `mini-jev`, `metask`, `jobe`, `harsha`, `lfm2600`, `lfm350`. Confirmed for `lev`, whose authors
+  measured 0.980 on banking77 in-distribution against our 0.7292 out-of-distribution:
+  <https://huggingface.co/interfaze-ai/lev/discussions/1>. We have not confirmed the same expectation for the other flagged
+  rows, so treat them as unqualified rather than known-low. No number has been changed and no
+  model has been re-run for this caveat.
+
 - **Ground truth is single-reviewed.** One human reviewer read all cases and corrected an AI
   draft of every answer, under protocol `human-reviewed-ai-assisted-v1`. There was no second
   independent reviewer and no adjudication, so this dataset has no inter-annotator agreement
@@ -206,6 +216,7 @@ Reproduce with the repository at https://github.com/instax-dutta/sysone-bench
 - `logicalDigest`: str
 - `manifestSha256`: str
 - `measurements`: array[43]
+- `readoutCaveat`: dict
 - `referenceClosedApi`: dict
 - `runDirectoriesVerified`: int
 - `scopeTotal`: int
