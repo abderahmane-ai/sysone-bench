@@ -15,11 +15,11 @@ import subprocess
 import sys
 from pathlib import Path
 
-# The raw run directories live outside the repository, on a results root. It is
-# configurable so the site is not silently coupled to one machine's home
-# directory, and so the coverage auditor, the docs and this script cannot drift
-# onto different roots.
-RESULTS_ROOT = Path(os.environ.get("SYSONE_RESULTS_ROOT", "~/sysone-bench-results")).expanduser()
+# The raw run directories live in results/raw/ inside the repo, gitignored. It is
+# configurable so the coverage auditor, the docs and this script cannot drift onto
+# different roots, and so the site can be rebuilt against a freshly fetched mirror.
+_REPO = Path(__file__).resolve().parent.parent
+RESULTS_ROOT = Path(os.environ.get("SYSONE_RESULTS_ROOT") or _REPO / "results" / "raw").expanduser()
 SUITES = [
     "agnews", "banking77_12", "emotion", "guardrails", "mnli",
     "moderation", "multilingual_intent", "sst5", "triage",

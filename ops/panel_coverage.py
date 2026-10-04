@@ -19,8 +19,8 @@ runs are grouped.
 
 Usage::
 
-    python ops/panel_coverage.py --results-root ~/sysone-bench-results
-    python ops/panel_coverage.py --results-root ~/sysone-bench-results --json
+    python ops/panel_coverage.py --results-root results/raw
+    python ops/panel_coverage.py --results-root results/raw --json
 """
 
 from __future__ import annotations
