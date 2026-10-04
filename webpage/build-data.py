@@ -10,11 +10,16 @@ that did not come from a checksum-verified run. Run from the repository root:
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
-RESULTS_ROOT = Path.home() / "sysone-bench-results"
+# The raw run directories live outside the repository, on a results root. It is
+# configurable so the site is not silently coupled to one machine's home
+# directory, and so the coverage auditor, the docs and this script cannot drift
+# onto different roots.
+RESULTS_ROOT = Path(os.environ.get("SYSONE_RESULTS_ROOT", "~/sysone-bench-results")).expanduser()
 SUITES = [
     "agnews", "banking77_12", "emotion", "guardrails", "mnli",
     "moderation", "multilingual_intent", "sst5", "triage",
