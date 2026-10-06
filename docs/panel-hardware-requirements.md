@@ -63,16 +63,20 @@ Proven for `nimble-v2`: 18.0 GiB bf16 ran 10.4 GB + 9.2 GB across two T4s, 2191 
 | `winnow-12b` | 11.96B | 22.3 | 44.6 | **GGUF only**; 22.3 GiB fits a GB10 whole, runtime still required |
 | `jev-omni` | 11.96B | 22.3 | 44.6 | Gemma-4-12B LoRA; needs the shard path exercised |
 
-### Needs more than 2x T4 — the 16 out-of-scope entries
+### Needs more than 2x T4 — the 9 out-of-scope entries with public weights
 
 Grouped by requirement. The `need N` column is bf16 x 1.15, the working estimate.
+Seven further names from the original 16 (`joshua-diffusion`, `razorback-one-read`,
+`vllm-pr57250`, `jevfire-uncapped`, `reflex-27b-v2`, `solomon-v11`, `xor`) have no
+public weights on HF or GitHub and were removed from scope entirely rather than
+carried as exclusions.
 
 | Requirement | Models | Served | bf16 | Approx GPU |
 | ---: | --- | ---: | ---: | --- |
-| ~55 GiB | `djev`, `joshua-diffusion`, `razorback-one-read`, `vllm-pr57250`, `rune-26b-a4b-v3` | 25.8B | 48.1 | RTX 6000 Ada 48 GB, or A6000 with offload |
-| ~60 GiB | `autojev-27b`, `decider-chat-qwen3.6-27b`, `jevfire-uncapped`, `reflex-27b-v2`, `solomon-v11`, `simple-jev-qwen3.8-27b`, `jebadiah-27b`, `eikos-27b-fp8` | 27.8B | 51.7 | RTX PRO 6000 96 GB, or H100 80 GB |
+| ~55 GiB | `djev`, `rune-26b-a4b-v3` | 25.8B | 48.1 | RTX 6000 Ada 48 GB, or A6000 with offload |
+| ~60 GiB | `autojev-27b`, `decider-chat-qwen3.6-27b`, `simple-jev-qwen3.8-27b`, `jebadiah-27b`, `eikos-27b-fp8` | 27.8B | 51.7 | RTX PRO 6000 96 GB, or H100 80 GB |
 | ~70 GiB | `decider-chat-gemma4-31b` | 32.7B | 60.9 | RTX PRO 6000 96 GB |
-| ~77 GiB | `decider-35b-nvfp4`, `xor` | 35.9B | 67.0 | RTX PRO 6000 96 GB |
+| ~77 GiB | `decider-35b-nvfp4` | 35.9B | 67.0 | RTX PRO 6000 96 GB |
 
 At fp32 every entry in this last band doubles and needs 96-134 GiB, which puts them beyond a
 single 96 GB card.

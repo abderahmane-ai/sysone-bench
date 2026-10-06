@@ -11,13 +11,14 @@ Source of truth is the panel extract of `multimodalart/jev-decision-index` at su
 | Tier | Count | Disposition |
 | :--- | ---: | :--- |
 | Decision Index 0.2.1 panel | 70 | source list |
-| Dropped - exceeds 2x T4 (29.12 GiB) | 16 | 48-67 GiB bf16; see `panel-hardware-requirements.md` |
+| Dropped - exceeds 2x T4 (29.12 GiB) | 9 | 48-67 GiB bf16; see `panel-hardware-requirements.md` |
 | Dropped - will not fit 2x T4 in fp16 | 1 | out of scope, precision confound |
 | Dropped - weights never published | 2 | out of scope, unreproducible |
-| **In scope for 2x T4** | **51** | target |
+| **In scope for 2x T4** | **49** | target (was 51; `akash-gemma` and `semif` removed, no public weights) |
+| Added by author request | 1 | `seb-9b` (`ironbcc/seb-9b`), 9.65B, pending measurement |
 
-The 16 dropped models are every entry at or above 25.8B served parameters. None fits 2x T4 in fp16
-(29.1 GiB usable), and the operator declined PRO 6000 spend.
+The 9 dropped models are every entry at or above 25.8B served parameters with public weights. None fits 2x T4 in fp16
+(29.1 GiB usable), and the operator declined PRO 6000 spend. Seven further names had no public weights anywhere and were removed from scope entirely.
 
 `winnow-12b` is dropped for a different reason. Its fp16 weights are 34.2 GiB against 29.1 GiB
 usable, so it cannot load on 2x T4 at the precision every other row uses. An 8-bit load would fit at

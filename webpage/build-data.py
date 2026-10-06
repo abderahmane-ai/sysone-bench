@@ -122,7 +122,7 @@ def main() -> int:
         "datasetVersion": "2.1.0",
         "suites": SUITES,
         "readoutCaveat": READOUT_CAVEAT,
-        "scopeTotal": 49,
+        "scopeTotal": 50,
         "runDirectoriesVerified": coverage["run_directories_verified"],
         "distinctMeasurements": coverage["distinct_measurements"],
         "referenceClosedApi": {
