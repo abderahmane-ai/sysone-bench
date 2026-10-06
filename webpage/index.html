@@ -169,12 +169,12 @@
       <dl class="proof">
         <div>
           <dt>Models measured</dt>
-          <dd id="stat-measured">43</dd>
+          <dd id="stat-measured">49</dd>
           <small>all run here, none inherited</small>
         </div>
         <div>
           <dt>Best open model</dt>
-          <dd id="stat-best">0.8556</dd>
+          <dd id="stat-best">0.8581</dd>
           <small><span id="stat-best-name">kev-4b</span> · open weights</small>
         </div>
         <div>
@@ -212,7 +212,7 @@
     <div class="band-head reveal">
       <h2>The full field, not a curated top ten</h2>
       <p>
-        All <span data-count="measurements">43</span> measurements, ranked by accuracy on the <span data-count="decisions">1,240</span> evaluation decisions. Rows marked as
+        All <span data-count="measurements">49</span> measurements, ranked by accuracy on the <span data-count="decisions">1,240</span> evaluation decisions. Rows marked as
         technique reimplementations are our reading of a published method over a public base
         checkpoint, not the authors' own code.
       </p>
@@ -220,7 +220,7 @@
 
     <div class="controls reveal">
       <label for="filter-kind">Show</label>
-      <button class="chip" data-filter="all" aria-pressed="true">All <span data-count="measurements">43</span></button>
+      <button class="chip" data-filter="all" aria-pressed="true">All <span data-count="measurements">49</span></button>
       <button class="chip" data-filter="vendor" aria-pressed="false">Vendor readout</button>
       <button class="chip" data-filter="technique" aria-pressed="false">Technique reimpl.</button>
       <span class="spacer" style="margin-left:auto"></span>
@@ -282,7 +282,7 @@
     <div class="chart reveal" style="margin-top:1rem">
       <div class="chart-head">
         <h3>Suite heatmap</h3>
-        <p>All <span data-count="measurements">43</span> measurements against all <span data-count="suites">9</span> suites, in score order left to right. Darker is more correct; the dimmer columns are technique reimplementations.</p>
+        <p>All <span data-count="measurements">49</span> measurements against all <span data-count="suites">9</span> suites, in score order left to right. Darker is more correct; the dimmer columns are technique reimplementations.</p>
       </div>
       <div class="heatmap-scroll">
         <svg id="chart-heatmap" role="img" aria-label="Heatmap of accuracy for all models across nine suites"></svg>
@@ -347,7 +347,7 @@
         <svg id="chart-coverage" role="img" aria-label="Comparison of run directories versus distinct measurements"></svg>
       </div>
       <div class="card reveal">
-        <h3>Why <span data-count="dirs">46</span> directories are <span data-count="measurements">43</span> measurements</h3>
+        <h3>Why <span data-count="dirs">55</span> directories are <span data-count="measurements">49</span> measurements</h3>
         <p style="margin-bottom:1rem">
           The auditor fingerprints the evaluation-phase answers of every run and collapses anything
           that cannot be told apart.
