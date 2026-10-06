@@ -510,6 +510,10 @@ const EXCLUDED = [
 function hydrate() {
   const best = rows()[0];
   A("#stat-best-name").textContent = best.runner;
+  A("#stat-measured").textContent = D.distinctMeasurements;
+  A("#stat-best").textContent = best.accuracy.toFixed(4);
+  A("#stat-closed").textContent = D.referenceClosedApi.accuracy.toFixed(4);
+  A("#stat-gap").textContent = D.decisions.toLocaleString("en-US");
 
   const sel = A("#suite-model");
   rows().forEach((r) => {
