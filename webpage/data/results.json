@@ -1,5 +1,5 @@
 {
- "manifestSha256": "bf77c5c373ce64218220377456298ad195d7ed01313d3b01e16ee441da8e3027",
+ "manifestSha256": "0d21a64c6b61b6be7b49050dbd89f89f934912a7b586734e475308e9c9422ea2",
  "logicalDigest": "4272a7a25ebcb324235696ad808544e157a31e3f9c04421da731a08dfb9d5768",
  "cases": 1190,
  "evaluationCases": 952,
@@ -25,9 +25,9 @@
   "confirmedBy": "https://huggingface.co/interfaze-ai/lev/discussions/1",
   "note": "These rows were scored by scoring each declared option independently. For a model trained to answer with label codes restricted in the next-token distribution, that is a different function of the same weights rather than a different implementation of the same one, and it can under-report the model. Confirmed for lev, whose authors measured 0.980 on banking77 in-distribution against our 0.7292 out-of-distribution, and who describe selecting by argmax over one-token label codes with two option orders averaged. We have not confirmed the same expectation for the other rows carrying this flag, so treat them as unqualified rather than known-low. No number here has been changed and no model has been re-run."
  },
- "scopeTotal": 51,
- "runDirectoriesVerified": 46,
- "distinctMeasurements": 43,
+ "scopeTotal": 49,
+ "runDirectoriesVerified": 55,
+ "distinctMeasurements": 49,
  "referenceClosedApi": {
   "runner": "jev",
   "model": "Jev 1.13.0",
@@ -74,6 +74,47 @@
     "multilingual_intent": null,
     "sst5": null,
     "triage": null
+   },
+   "readoutCaveat": false
+  },
+  {
+   "runner": "decision-lux-9b",
+   "runId": "decision-lux-9b-spark-1",
+   "model": "llm-semantic-router/Decision-1.0-Lux-9B",
+   "revision": "2064c84daf599447f840719ef8e86db152a56851",
+   "baseModel": null,
+   "scoring": null,
+   "techniqueReimplementation": false,
+   "vendorCodeExecuted": null,
+   "sharding": null,
+   "singleDevice": null,
+   "device": "cpu",
+   "dtype": "vendor-managed",
+   "serving": "local",
+   "accuracy": 0.8483870967741935,
+   "cases": 952,
+   "decisions": 1240,
+   "suites": {
+    "agnews": 0.84375,
+    "banking77_12": 0.8854166666666666,
+    "emotion": 0.734375,
+    "guardrails": 0.9791666666666666,
+    "mnli": 0.9166666666666666,
+    "moderation": 0.9305555555555556,
+    "multilingual_intent": 0.975,
+    "sst5": 0.525,
+    "triage": 0.9010416666666666
+   },
+   "latencyP50": {
+    "agnews": 0.1484362236224115,
+    "banking77_12": 0.18424990214407444,
+    "emotion": 0.1601894369814545,
+    "guardrails": 0.16042418300639838,
+    "mnli": 0.14797753049060702,
+    "moderation": 0.18247860705014318,
+    "multilingual_intent": 0.16026931360829622,
+    "sst5": 0.1393970079952851,
+    "triage": 0.31610619998537004
    },
    "readoutCaveat": false
   },
@@ -242,6 +283,47 @@
    "readoutCaveat": false
   },
   {
+   "runner": "kev-9b",
+   "runId": "kev-9b-spark-1",
+   "model": "jaredpalmer/kev-9b",
+   "revision": "db029f08b290afd9fee4aa4bbcd9ae48602d1eb0",
+   "baseModel": null,
+   "scoring": null,
+   "techniqueReimplementation": false,
+   "vendorCodeExecuted": null,
+   "sharding": null,
+   "singleDevice": null,
+   "device": "cuda",
+   "dtype": "vendor-managed",
+   "serving": "loopback-subprocess",
+   "accuracy": 0.8290322580645161,
+   "cases": 952,
+   "decisions": 1240,
+   "suites": {
+    "agnews": 0.875,
+    "banking77_12": 0.9270833333333334,
+    "emotion": 0.8125,
+    "guardrails": 0.8020833333333334,
+    "mnli": 0.8416666666666667,
+    "moderation": 0.8055555555555556,
+    "multilingual_intent": 0.9333333333333333,
+    "sst5": 0.5166666666666667,
+    "triage": 0.9114583333333334
+   },
+   "latencyP50": {
+    "agnews": 0.6277861393755302,
+    "banking77_12": 0.6164043990429491,
+    "emotion": 0.5426440999144688,
+    "guardrails": 0.566511366982013,
+    "mnli": 0.6240064374869689,
+    "moderation": 0.5688687224173918,
+    "multilingual_intent": 0.564832657459192,
+    "sst5": 0.49538842984475195,
+    "triage": 0.7586066676303744
+   },
+   "readoutCaveat": false
+  },
+  {
    "runner": "jevk5",
    "runId": "jevk5-t4-c0-v210",
    "model": "alibiserikbay/JevK5",
@@ -320,6 +402,47 @@
     "multilingual_intent": null,
     "sst5": null,
     "triage": null
+   },
+   "readoutCaveat": false
+  },
+  {
+   "runner": "jpt-4b",
+   "runId": "jpt-4b-spark-1",
+   "model": "kirp/jpt-4b",
+   "revision": "78312f855b8bebf83ae7e9e8f05b5a0f73f519a9",
+   "baseModel": null,
+   "scoring": null,
+   "techniqueReimplementation": false,
+   "vendorCodeExecuted": null,
+   "sharding": null,
+   "singleDevice": null,
+   "device": "cuda",
+   "dtype": "auto",
+   "serving": "loopback-subprocess",
+   "accuracy": 0.8274193548387097,
+   "cases": 952,
+   "decisions": 1240,
+   "suites": {
+    "agnews": 0.8875,
+    "banking77_12": 0.84375,
+    "emotion": 0.796875,
+    "guardrails": 0.9479166666666666,
+    "mnli": 0.7416666666666667,
+    "moderation": 0.9097222222222222,
+    "multilingual_intent": 0.8083333333333333,
+    "sst5": 0.5416666666666666,
+    "triage": 0.921875
+   },
+   "latencyP50": {
+    "agnews": 0.08500509895384312,
+    "banking77_12": 0.09944389399606735,
+    "emotion": 0.08382662606891245,
+    "guardrails": 0.13266246696002781,
+    "mnli": 0.09435782744549215,
+    "moderation": 0.19778597203548998,
+    "multilingual_intent": 0.09760918642859906,
+    "sst5": 0.08461063308641315,
+    "triage": 0.2765486428979784
    },
    "readoutCaveat": false
   },
@@ -566,6 +689,88 @@
     "multilingual_intent": null,
     "sst5": null,
     "triage": null
+   },
+   "readoutCaveat": false
+  },
+  {
+   "runner": "lumma-fev-4b",
+   "runId": "lumma-fev-4b-spark-1",
+   "model": "FrontiersMind/Lumma-fev-4b",
+   "revision": "6fea60ae613c832b41c65a74095ae20428ca7d7b",
+   "baseModel": null,
+   "scoring": null,
+   "techniqueReimplementation": false,
+   "vendorCodeExecuted": null,
+   "sharding": null,
+   "singleDevice": null,
+   "device": "cuda",
+   "dtype": "auto",
+   "serving": "local",
+   "accuracy": 0.7758064516129032,
+   "cases": 952,
+   "decisions": 1240,
+   "suites": {
+    "agnews": 0.95625,
+    "banking77_12": 0.9791666666666666,
+    "emotion": 0.609375,
+    "guardrails": 0.5833333333333334,
+    "mnli": 0.7333333333333333,
+    "moderation": 0.9444444444444444,
+    "multilingual_intent": 0.8166666666666667,
+    "sst5": 0.3333333333333333,
+    "triage": 0.9375
+   },
+   "latencyP50": {
+    "agnews": 0.058921876014210284,
+    "banking77_12": 0.07409136556088924,
+    "emotion": 0.05369020195212215,
+    "guardrails": 0.0524854640243575,
+    "mnli": 0.05912290851119906,
+    "moderation": 0.06479918805416673,
+    "multilingual_intent": 0.059731881017796695,
+    "sst5": 0.04460139153525233,
+    "triage": 0.13117618148680776
+   },
+   "readoutCaveat": false
+  },
+  {
+   "runner": "lumma-fev-9b",
+   "runId": "lumma-fev-9b-spark-1",
+   "model": "FrontiersMind/Lumma-fev-9b",
+   "revision": "51c4b084f40bcc45073f5c92d6119c72a58210b2",
+   "baseModel": null,
+   "scoring": null,
+   "techniqueReimplementation": false,
+   "vendorCodeExecuted": null,
+   "sharding": null,
+   "singleDevice": null,
+   "device": "cuda",
+   "dtype": "auto",
+   "serving": "local",
+   "accuracy": 0.7741935483870968,
+   "cases": 952,
+   "decisions": 1240,
+   "suites": {
+    "agnews": 0.95625,
+    "banking77_12": 0.9895833333333334,
+    "emotion": 0.6197916666666666,
+    "guardrails": 0.78125,
+    "mnli": 0.7666666666666667,
+    "moderation": 0.9236111111111112,
+    "multilingual_intent": 0.525,
+    "sst5": 0.4083333333333333,
+    "triage": 0.9427083333333334
+   },
+   "latencyP50": {
+    "agnews": 0.10865770990494639,
+    "banking77_12": 0.1381475500529632,
+    "emotion": 0.09069016703870147,
+    "guardrails": 0.0889944100053981,
+    "mnli": 0.10840501845814288,
+    "moderation": 0.1136881901184097,
+    "multilingual_intent": 0.10862690710928291,
+    "sst5": 0.07988677697721869,
+    "triage": 0.1991460684221238
    },
    "readoutCaveat": false
   },
@@ -1181,6 +1386,47 @@
     "multilingual_intent": null,
     "sst5": null,
     "triage": null
+   },
+   "readoutCaveat": false
+  },
+  {
+   "runner": "jeff",
+   "runId": "jeff-spark-4",
+   "model": "knowledgator/gliformer-large-v1",
+   "revision": "d0a4e53d09cebe6bc963dd9be319d4279084bb2d",
+   "baseModel": "knowledgator/gliformer-large-v1",
+   "scoring": null,
+   "techniqueReimplementation": true,
+   "vendorCodeExecuted": false,
+   "sharding": null,
+   "singleDevice": null,
+   "device": "unknown",
+   "dtype": null,
+   "serving": "local",
+   "accuracy": 0.6854838709677419,
+   "cases": 952,
+   "decisions": 1240,
+   "suites": {
+    "agnews": 0.73125,
+    "banking77_12": 0.8645833333333334,
+    "emotion": 0.6458333333333334,
+    "guardrails": 0.5729166666666666,
+    "mnli": 0.6333333333333333,
+    "moderation": 0.8333333333333334,
+    "multilingual_intent": 0.5166666666666667,
+    "sst5": 0.4166666666666667,
+    "triage": 0.8489583333333334
+   },
+   "latencyP50": {
+    "agnews": 0.0268667449709028,
+    "banking77_12": 0.025720058009028435,
+    "emotion": 0.023140626028180122,
+    "guardrails": 0.04039995791390538,
+    "mnli": 0.024413105915300548,
+    "moderation": 0.060664941440336406,
+    "multilingual_intent": 0.02318323391955346,
+    "sst5": 0.02338633907493204,
+    "triage": 0.08331669960170984
    },
    "readoutCaveat": false
   },
@@ -1805,6 +2051,12 @@
    "decider-2b": [
     "decider-2b-t4-c0-v210",
     "decider-2b-t4-d0-v210"
+   ],
+   "jeff": [
+    "jeff-spark-1",
+    "jeff-spark-2",
+    "jeff-spark-3",
+    "jeff-spark-4"
    ],
    "tev1-08b": [
     "tev1-08b-20261002-v210",

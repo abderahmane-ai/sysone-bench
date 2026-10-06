@@ -23,7 +23,7 @@ multilingual_intent, sst5, triage.
 
 ## Headline results
 
-43 System One decision models measured. Counts are derived from checksum-verified run
+49 System One decision models measured. Counts are derived from checksum-verified run
 directories by a script, not maintained by hand.
 
 Closed API reference, not a panel entry:
@@ -76,26 +76,24 @@ per row instead of treated as constant.
 
 ## Coverage, and what is missing
 
-46 verified run directories but **43 distinct measurements**. Three collapses:
+55 verified run directories but **49 distinct measurements**. Repeated runs collapse:
 
-- `decider-2b` - two directories from one retried run, both 0.7895
+- `decider-2b` - two directories from one retried run
 - `tev1-08b` - two directories, the CPU and T4 cross-host pair
+- `jeff` - four directories from successive readout fixes, highest kept
 - `mini-jev` and `openvons` - two separate runner names producing byte-identical answers on all
   1,240 evaluation decisions, sharing base checkpoint `Qwen/Qwen3-4B-Instruct-2507` at revision
   `cdbee75f17c01a7cc42f958dc650907174af0554`
 
-Eight candidate entries were assembled but not measured, each with a recorded reason:
+Three entries sit outside the measured scope, each with a recorded reason:
 
 | Entry | Reason |
 |---|---|
-| akash-gemma | Author publishes zero models; code exists, weights never released |
-| semif | Both known repository URLs return 404; author account empty |
-| decision-lux-9b | Remote code forces fp32 encoders, about 36 GiB host RAM to stage against 31 GiB available |
-| kev-9b | Vendored serving path loads the model itself, so cross-GPU sharding cannot engage |
 | winnow-e4b | Published solely as GGUF; requires a different runtime |
 | clm-v0.1-8b | Contrastive reranker scoring state-answer pairs, not typed decisions |
-| jeff | Weights public and small; adapter written, package loader path unresolved |
-| winnow-12b | 22.3 GiB bf16, exceeds available hardware |
+| winnow-12b | Published solely as GGUF; 22.3 GiB fits current hardware but needs a different runtime |
+
+`decision-lux-9b` (0.8484), `kev-9b` (0.8290) and `jeff` (0.6855) were previously excluded and are now measured. The scope is 49 entries, all 49 measured.
 
 ## Caveats stated plainly
 

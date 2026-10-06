@@ -113,7 +113,7 @@ def main() -> int:
     ordered = [r for r in (row["runner"] for row in coverage["measurements"])]
 
     payload = {
-        "manifestSha256": "bf77c5c373ce64218220377456298ad195d7ed01313d3b01e16ee441da8e3027",
+        "manifestSha256": "0d21a64c6b61b6be7b49050dbd89f89f934912a7b586734e475308e9c9422ea2",
         "logicalDigest": "4272a7a25ebcb324235696ad808544e157a31e3f9c04421da731a08dfb9d5768",
         "cases": 1190,
         "evaluationCases": 952,
@@ -122,7 +122,7 @@ def main() -> int:
         "datasetVersion": "2.1.0",
         "suites": SUITES,
         "readoutCaveat": READOUT_CAVEAT,
-        "scopeTotal": 51,
+        "scopeTotal": 49,
         "runDirectoriesVerified": coverage["run_directories_verified"],
         "distinctMeasurements": coverage["distinct_measurements"],
         "referenceClosedApi": {

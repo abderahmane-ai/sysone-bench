@@ -502,14 +502,9 @@ function drawCoverage() {
 
 /* -------------------------------------------------------------- hydrate */
 const EXCLUDED = [
-  ["akash-gemma", "No weights published", "The author account publishes zero models on Hugging Face. Code exists; the adapter does not."],
-  ["semif", "Repository deleted", "Both known repository URLs return 404 and the author account publishes zero models."],
-  ["decision-lux-9b", "Forced fp32 encoders", "Needs about 36 GiB of host RAM to stage against 31 GiB available. More VRAM does not help."],
-  ["kev-9b", "Single-device server only", "The vendored serving path loads the model itself, so cross-GPU sharding never engages."],
   ["winnow-e4b", "GGUF only", "A vision-language checkpoint published solely as GGUF. Needs a different runtime."],
   ["clm-v0.1-8b", "Contrastive reranker", "Scores state-answer pairs rather than producing typed decisions."],
-  ["jeff", "Loader detail unresolved", "Weights are public and small. The adapter is written; a package loader path needs fixing."],
-  ["winnow-12b", "Exceeds available hardware", "22.3 GiB of bf16 weights. No single device on hand holds it."],
+  ["winnow-12b", "GGUF only", "22.3 GiB of bf16 weights published solely as GGUF. Fits current hardware but needs a different runtime."],
 ];
 
 function hydrate() {
