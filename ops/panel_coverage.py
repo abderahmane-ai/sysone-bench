@@ -36,16 +36,37 @@ from typing import Any
 REQUIRED = ("metadata.json", "predictions.jsonl", "summary.json", "usage.json", "checksums.sha256")
 
 #: Manifest every row in this panel was produced against.
-SEALED_MANIFEST_SHA256 = "a938cc2483a592dc84e0d5baac12594491bcaa5b4ceb6b7c3b0def71b36297bd"
+SEALED_MANIFEST_SHA256 = "bf77c5c373ce64218220377456298ad195d7ed01313d3b01e16ee441da8e3027"
 
 
 def verify_run(run_dir: Path) -> tuple[bool, list[str]]:
     """Check required artifacts exist and every listed checksum matches."""
     present = {entry.name for entry in run_dir.iterdir() if entry.is_file()}
-    missing = [name for name in REQUIRED if name not in present]
+    required = list(REQUIRED)
+    if (run_dir / "metadata.json").exists():
+        try:
+            if json.loads((run_dir / "metadata.json").read_text()).get("rescored"):
+                # Both are independent of the gold and unchanged by re-scoring,
+                # so a re-scored record inherits them from the run it supersedes.
+                required = [n for n in required
+                            if n not in ("predictions.jsonl", "usage.json")]
+        except ValueError:
+            pass
+    missing = [name for name in required if name not in present]
     if missing:
         return False, [f"missing {','.join(missing)}"]
     problems: list[str] = []
+    preds = predictions_path(run_dir)
+    if not (run_dir / "predictions.jsonl").exists() and preds.exists():
+        extra = hashlib.sha256(preds.read_bytes()).hexdigest()
+        for base in (run_dir.parent, run_dir.parent / "runs"):
+            candidate = base / (run_dir.name.removesuffix("-v210")) / "checksums.sha256"
+            if candidate.exists():
+                for line in candidate.read_text().splitlines():
+                    if line.split(None, 1)[-1].strip().lstrip("*") == "predictions.jsonl":
+                        if line.split(None, 1)[0] != extra:
+                            problems.append("inherited predictions.jsonl corrupt")
+                break
     for line in (run_dir / "checksums.sha256").read_text().splitlines():
         if not line.strip():
             continue
@@ -61,6 +82,30 @@ def verify_run(run_dir: Path) -> tuple[bool, list[str]]:
     return not problems, problems
 
 
+def predictions_path(run_dir: Path) -> Path:
+    """Where a run's evaluation answers live.
+
+    A re-scored v2.1.0 record does not copy predictions.jsonl: the answers are
+    byte-identical to the run it supersedes, so duplicating them would grow the
+    record without adding evidence. metadata.json names the parent run.
+    """
+    local = run_dir / "predictions.jsonl"
+    if local.exists():
+        return local
+    meta = run_dir / "metadata.json"
+    if meta.exists():
+        try:
+            parent = json.loads(meta.read_text()).get("derived_from_run_id")
+        except ValueError:
+            parent = None
+        if parent:
+            for base in (run_dir.parent, run_dir.parent / "runs"):
+                inherited = base / parent / "predictions.jsonl"
+                if inherited.exists():
+                    return inherited
+    return local
+
+
 def fingerprint(run_dir: Path) -> str | None:
     """Hash the evaluation-phase answers so identical runs can be detected.
 
@@ -71,7 +116,7 @@ def fingerprint(run_dir: Path) -> str | None:
     digest = hashlib.sha256()
     rows = 0
     try:
-        with (run_dir / "predictions.jsonl").open(encoding="utf-8") as handle:
+        with predictions_path(run_dir).open(encoding="utf-8") as handle:
             for line in handle:
                 if not line.strip():
                     continue
@@ -120,6 +165,7 @@ def audit(results_root: Path) -> dict[str, Any]:
     roots = [results_root / "cpu" / "runs", results_root / "gpu"]
     runs: list[dict[str, Any]] = []
     rejected: list[dict[str, Any]] = []
+    superseded: list[str] = []
     seen_dirs: set[str] = set()
     for root in roots:
         if not root.is_dir():
@@ -130,6 +176,14 @@ def audit(results_root: Path) -> dict[str, Any]:
             if run_dir.name.startswith(".") or run_dir.name.startswith("_"):
                 continue
             seen_dirs.add(run_dir.name)
+            # A -v210 successor supersedes the 2.0.0 record for the same run: both
+            # hold identical answers and differ only in the gold, so counting both
+            # would double the panel. Skip the OLD record, keep the new one.
+            if not run_dir.name.endswith("-v210") and run_dir.with_name(
+                run_dir.name + "-v210"
+            ).is_dir():
+                superseded.append(run_dir.name)
+                continue
             if not (run_dir / "checksums.sha256").exists():
                 rejected.append({"run_dir": run_dir.name, "problems": ["no checksums.sha256"]})
                 continue

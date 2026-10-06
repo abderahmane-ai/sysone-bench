@@ -70,9 +70,9 @@
       "url": "https://sysone.sdad.pro/",
       "image": "https://sysone.sdad.pro/og.png",
       "creator": { "@id": "https://sysone.sdad.pro/#org" },
-      "version": "2.0.0",
+      "version": "2.1.0",
       "datePublished": "2026-09-26",
-      "dateModified": "2026-10-04",
+      "dateModified": "2026-10-06",
       "measurementTechnique": "Each model is run by the benchmark operator against one sealed manifest at a pinned weight revision and a fixed seed. Inputs are verified byte-identical across models before scoring. No vendor-published score is reused.",
       "keywords": [
         "decision models","System One","benchmark","evaluation","LLM evaluation",
@@ -405,11 +405,14 @@
     </div>
 
     <div class="note reveal" style="margin-top:1.5rem">
-      <p style="margin:0"><strong>One honest caveat about the ground truth.</strong>
-      One human reviewer read all 1,190 cases and corrected an AI draft of every answer, under
-      protocol <code>human-reviewed-ai-assisted-v1</code>. There was no second independent reviewer
-      and no adjudication, so this dataset has no inter-annotator agreement and no kappa. It is not
-      a two-reviewer seal.</p>
+      <p style="margin:0"><strong>Ground truth, plainly.</strong>
+      In version <code>2.0.0</code> one human reviewer read every case and corrected an AI draft of
+      every answer, under protocol <code>human-reviewed-ai-assisted-v1</code>, with no second reviewer
+      and no adjudication. Version <code>2.1.0</code> re-anchors the gold: for agnews, banking77_12,
+      mnli and sst5 it adopts the public source label directly, and for emotion it keeps a per-case
+      human decision on each of the 109 disagreements with the published label. emotion remains
+      single-reviewed, so it carries no inter-annotator statistic. The four synthetic suites still
+      have no public source. Corrected labels are rescored from the stored answers; no model was re-run.</p>
     </div>
   </div>
 </section>

@@ -59,7 +59,7 @@ This benchmark fixes the inputs instead:
   number is read
 - Manifest sha256 `a938cc2483a592dc84e0d5baac12594491bcaa5b4ceb6b7c3b0def71b36297bd`
 - Logical digest `4272a7a25ebcb324235696ad808544e157a31e3f9c04421da731a08dfb9d5768`
-- Seed 42, dataset version 2.0.0
+- Seed 42, dataset version 2.1.0
 - 952 evaluation cases, 1,240 scored decisions per model
 - Every run records a full 40-character model revision, plus base model and base revision for
   adapter and technique entries, plus device, dtype, serving mode, and the scoring readout used
@@ -99,10 +99,12 @@ Eight candidate entries were assembled but not measured, each with a recorded re
 
 ## Caveats stated plainly
 
-- **Ground truth is single-reviewed.** One human reviewer read all 1,190 cases and corrected an AI
-  draft of every answer, under protocol `human-reviewed-ai-assisted-v1`. There was no second
-  independent reviewer and no adjudication, so this dataset has no inter-annotator agreement and no
-  kappa. It is not a two-reviewer seal.
+- **Ground truth, plainly.** In version `2.0.0` one human reviewer read every case and corrected an
+  AI draft of every answer, with no second reviewer and no adjudication. Version `2.1.0` re-anchors
+  the gold: agnews, banking77_12, mnli and sst5 adopt the public source label directly; emotion keeps
+  a per-case human decision on each of the 109 disagreements with the published label, still
+  single-reviewed, so no inter-annotator statistic. The four synthetic suites still have no public
+  source. Corrected labels are rescored from the stored answers; no model was re-run.
 - **Rows tagged "technique reimplementation"** are our reading of a published method over a public
   base checkpoint, not the authors' code. They set `technique_reimplementation: true` and
   `vendor_code_executed: false`.
