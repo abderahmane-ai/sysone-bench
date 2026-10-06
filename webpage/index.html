@@ -394,13 +394,12 @@
       </div>
       <div class="card reveal">
         <h3>Our own model list</h3>
-        <p>The 51 models in scope were compiled here from public releases, model cards and
-        published work. No third party's results, prompts or leaderboard entries were used as input.</p>
+        <p>The 49 models in scope were compiled here from public releases, model cards and
+        published work. No third party's results, prompts or leaderboard entries were used as input. Two candidate entries with no published weights were removed from scope entirely.</p>
       </div>
       <div class="card reveal">
         <h3>Failure modes recorded</h3>
-        <p>Models that could not be measured are listed with the reason. Two never published
-        weights; three exceed the available hardware.</p>
+        <p>Models that could not be measured are listed with the reason. Two are published only as GGUF and need a different runtime; one is a reranker, a different task shape.</p>
       </div>
     </div>
 
@@ -467,6 +466,8 @@ python ops/panel_coverage.py \
       <h3>sysone-bench</h3>
       <p>An independent benchmark of System One decision models. No vendor affiliation, no API
       access, no vendor-published figures treated as comparable.</p>
+      <p>Special thanks to <a href="https://huggingface.co/MrDragonFox">MrDragonFox</a> for lending us a DGX Spark,
+      on which the larger models in the panel were benchmarked.</p>
     </div>
     <div>
       <h3>Data</h3>

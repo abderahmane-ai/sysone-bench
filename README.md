@@ -196,3 +196,8 @@ Apache-2.0, and the public suites follow their upstream licenses recorded in
   url    = {https://github.com/instax-dutta/sysone-bench}
 }
 ```
+
+## Thanks
+
+Special thanks to [MrDragonFox](https://huggingface.co/MrDragonFox) for lending us a DGX Spark,
+on which the larger models in the panel were benchmarked.
