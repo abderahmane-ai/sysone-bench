@@ -137,7 +137,6 @@ def main() -> int:
                     per_suite[suite]["changed"] += 1
                     case["expected"][q] = want
                 case["label_provenance"] = PROTOCOL
-                case["label_review_note"] = decisions[cid]["why"]
             else:
                 stats["untouched_review_agree"] += 1
                 per_suite[suite]["untouched"] += 1

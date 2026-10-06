@@ -177,7 +177,7 @@ and are excluded from the 51-model target for the same reason `winnow-12b` is.
 | `decision-lux-9b` | 9B | same |
 | `winnow-12b` | 12B | 34.2 GiB bf16, exceeds one card's 15.4 GiB outright |
 
-`kev-9b` and `decision-lux-9b` were each attempted once and both failed on load. A RAM staging gate
+`kev-9b` and `decision-lux-9b` were each attempted once and both failed on load *on the 2x T4 hardware*. Both have since been measured on a GB10 Spark (117 GB unified): `decision-lux-9b` 0.8484, `kev-9b` 0.8290. A RAM staging gate
 and a VRAM denylist now refuse them automatically so the failure is not repeated.
 
 ## Verification

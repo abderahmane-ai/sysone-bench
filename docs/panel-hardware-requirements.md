@@ -56,11 +56,11 @@ Proven for `nimble-v2`: 18.0 GiB bf16 ran 10.4 GB + 9.2 GB across two T4s, 2191 
 | --- | ---: | ---: | ---: | --- |
 | `winnow-e4b` | 8.00B | 14.9 | 29.8 | **GGUF only**; needs `llama.cpp` |
 | `clm-v0.1-8b` | 8.19B | 15.3 | 30.5 | `.pt` pickle; contrastive **reranker**, different task shape |
-| `decision-lux-9b` | 9.65B | 18.0 | 36.0 | Remote code **forces FP32 encoders**: ~36 GiB host staging vs 31 GiB available |
-| `kev-9b` | 9.65B | 18.0 | 36.0 | `kev.serve` loads the model itself, so `device_map` never applies |
+| `decision-lux-9b` | 9.65B | 18.0 | 36.0 | **measured**, 0.8484 (GB10 Spark, fits whole-device) |
+| `kev-9b` | 9.65B | 18.0 | 36.0 | **measured**, 0.8290 (GB10 Spark, vendor server self-loads on one device) |
 | `nimble-v2` | 9.65B | 18.0 | 36.0 | **measured**, 0.7823 |
 | `jpt-9b` | 9.65B | 18.0 | 36.0 | measured, 0.8548 |
-| `winnow-12b` | 11.96B | 22.3 | 44.6 | **GGUF only** |
+| `winnow-12b` | 11.96B | 22.3 | 44.6 | **GGUF only**; 22.3 GiB fits a GB10 whole, runtime still required |
 | `jev-omni` | 11.96B | 22.3 | 44.6 | Gemma-4-12B LoRA; needs the shard path exercised |
 
 ### Needs more than 2x T4 — the 16 out-of-scope entries

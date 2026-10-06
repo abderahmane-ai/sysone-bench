@@ -36,7 +36,7 @@ from typing import Any
 REQUIRED = ("metadata.json", "predictions.jsonl", "summary.json", "usage.json", "checksums.sha256")
 
 #: Manifest every row in this panel was produced against.
-SEALED_MANIFEST_SHA256 = "bf77c5c373ce64218220377456298ad195d7ed01313d3b01e16ee441da8e3027"
+SEALED_MANIFEST_SHA256 = "0d21a64c6b61b6be7b49050dbd89f89f934912a7b586734e475308e9c9422ea2"
 
 
 def verify_run(run_dir: Path) -> tuple[bool, list[str]]:

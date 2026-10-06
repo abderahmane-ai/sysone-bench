@@ -507,6 +507,8 @@ _VENDOR_RUNNERS: dict[str, tuple[str, str]] = {
     "decision-sol": ("runners.vendor.decision1", "DecisionSolRunner"),
     "lumma-fev-01b": ("runners.vendor.lumma_fev", "LummaFev01BRunner"),
     "lumma-fev-06b": ("runners.vendor.lumma_fev", "LummaFev06BRunner"),
+    "lumma-fev-4b": ("runners.vendor.lumma_fev", "LummaFev4BRunner"),
+    "lumma-fev-9b": ("runners.vendor.lumma_fev", "LummaFev9BRunner"),
     "bosun-06b": ("runners.vendor.bosun", "Bosun06BRunner"),
     "bosun-17b": ("runners.vendor.bosun", "Bosun17BRunner"),
     "gliner-small": ("runners.vendor.gliner", "GlinerSmallRunner"),

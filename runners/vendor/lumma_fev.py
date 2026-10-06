@@ -75,3 +75,16 @@ class LummaFev06BRunner(_LummaFevRunner):
     default_model = "FrontiersMind/Lumma-fev-0.6b"
     default_revision = "59272e2c10506d99a464c999dcaa91b5108c3640"
     license_name = "apache-2.0"
+
+class LummaFev4BRunner(_LummaFevRunner):
+    name = "lumma-fev-4b"
+    default_model = "FrontiersMind/Lumma-fev-4b"
+    default_revision = "6fea60ae613c832b41c65a74095ae20428ca7d7b"
+    license_name = "apache-2.0"
+
+
+class LummaFev9BRunner(_LummaFevRunner):
+    name = "lumma-fev-9b"
+    default_model = "FrontiersMind/Lumma-fev-9b"
+    default_revision = "51c4b084f40bcc45073f5c92d6119c72a58210b2"
+    license_name = "apache-2.0"

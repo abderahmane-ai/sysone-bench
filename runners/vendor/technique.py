@@ -127,34 +127,101 @@ class JeffRunner(_GlinerRunnerBase):
     license_name = "apache-2.0"
     prompt_style = "independent_reimplementation"
 
+    def predict(
+        self,
+        state: Mapping[str, Any],
+        questions: Mapping[str, Any],
+        *,
+        phase: str = "benchmark",
+    ) -> dict[str, Any]:
+        # GLiFormer's inference surface is classify(texts, classes) returning a
+        # ranked [{class_name, score}] list: there is no classify_text and no
+        # schema object. One call per question, options as the class list, and the
+        # readout maps the returned scores onto the contract's answer shapes.
+        self._validate_phase(phase)
+        copied_state, copied_questions = self._copy_inputs(state, questions)
+        from runners.vendor.common import state_to_text  # noqa: PLC0415
+
+        text = state_to_text(copied_state)
+        answers: dict[str, Any] = {}
+        for qid, question in copied_questions.items():
+            qtype = question.get("type")
+            if qtype == "noul":
+                # noul questions declare no criteria: they are a yes/no judgement
+                # written as an instruction. Scoring abstract "yes"/"no" tokens is
+                # meaningless for a zero-shot label classifier - verified on the real
+                # model: a clean post scores "yes" 0.9963 and a nasty one "no" 0.0680,
+                # while the same posts score their real labels correctly. So score the
+                # instruction's own imperative as a single positive class and read its
+                # returned score directly as P(true).
+                # The class name is the qid, but GLiFormer reads natural language:
+                # "jailbreak" scores 0.9997 on a real jailbreak while
+                # "prompt_injection" - the suite's own spelling, with an underscore -
+                # scores 0.0047 on the same post. Spoken form, so the model can read it.
+                spoken = qid.replace("_", " ").strip()
+                ranked = self._model.classify(text, [spoken], threshold=0.0)
+                probability = float(ranked[0]["score"]) if ranked else 0.0
+                answers[qid] = {"type": "noul", "noul": probability}
+                continue
+            criteria = question.get("criteria")
+            if isinstance(criteria, Mapping):
+                labels = [str(name) for name in criteria]
+            else:
+                labels = [str(level) for level in (criteria or [])]
+            # classify() is a detection API: entries below `threshold` are
+            # dropped. At the default 0.5 a confident clean post returns both
+            # labels above it and a quiet one returns nothing, so the default
+            # destroys the very signal a probability needs. Request everything,
+            # then normalise over the full declared label set.
+            ranked = self._model.classify(text, labels, threshold=0.0)
+            scores = {entry["class_name"]: float(entry["score"]) for entry in ranked}
+            total = sum(scores.values())
+            if total > 0.0 and len(scores) > 1:
+                probabilities = {name: value / total for name, value in scores.items()}
+            else:
+                best = max(scores, key=scores.get) if scores else labels[0]
+                probabilities = {name: (1.0 if name == best else 0.0) for name in labels}
+            for name in labels:
+                probabilities.setdefault(name, 0.0)
+            top = max(probabilities, key=lambda name: (probabilities[name], name))
+            if qtype == "score":
+                index = labels.index(top)
+                answers[qid] = {
+                    "type": "score",
+                    "score": float(index),
+                    "confidence": float(probabilities[top]),
+                }
+            else:
+                answers[qid] = {
+                    "type": "choice",
+                    "choice": top,
+                    "probabilities": {
+                        name: float(value) for name, value in probabilities.items()
+                    },
+                    "confidence": float(probabilities[top]),
+                }
+        return {"answers": answers}
+
     def _load(self) -> dict[str, Any]:
         # GLiFormer ships its config as `gliner_config.json`, not the `config.json` that
         # transformers' Auto* classes look for. Fetching the standard name 404s, so the file is
         # materialised under that name in a private snapshot directory before loading, leaving the
         # shared HF cache untouched.
-        from pathlib import Path
-
-        from huggingface_hub import snapshot_download
-
-        local = Path(
-            snapshot_download(
-                repo_id=self.default_model,
-                revision=self.default_revision,
-                allow_patterns=["gliner_config.json", "pytorch_model.bin", "tokenizer*"],
-            )
-        )
-        if not (local / "config.json").exists():
-            (local / "config.json").write_bytes((local / "gliner_config.json").read_bytes())
-        self.default_model = str(local)
-        # GLiFormer's AutoExtractor does not accept `dtype`; its loader takes `map_location`
-        # instead, so the shared load_kwargs are bypassed rather than filtered.
-        from gliner2 import AutoExtractor
+# This checkpoint's own package is `gliformer`, not `gliner2`: its loader is
+        # GLiFormer.from_pretrained and its inference surface is classify(). The
+        # earlier gliner2 path could never work here - the state-dict heads belong
+        # to GLiFormer's architecture, not gliner2's span heads.
+        from gliformer import GLiFormer
 
         from runners.vendor.gliner import ADAPTER_VERSION as _GLINER_ADAPTER_VERSION
 
         device, _ = resolve_device(), resolve_dtype()
-        model = AutoExtractor.from_pretrained(str(local))
+        model = GLiFormer.from_pretrained(
+            self.default_model,
+            revision=self.default_revision,
+        )
         place_on_device(model, device)
+        model.eval()
         self._model = model
         metadata = {
             "runner": self.name,
