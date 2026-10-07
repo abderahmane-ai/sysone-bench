@@ -295,6 +295,8 @@ def test_factory_registers_every_vendor_runner_without_importing_vendor_sdks() -
         "decision-sol",
         "lumma-fev-01b",
         "lumma-fev-06b",
+        "lumma-fev-4b",
+        "lumma-fev-9b",
         "bosun-06b",
         "bosun-17b",
         "gliner-small",
@@ -336,6 +338,7 @@ def test_factory_registers_every_vendor_runner_without_importing_vendor_sdks() -
         "decision-lux-9b",
         "intern-decision-4b",
         "mojev",
+        "djev",
     }
     assert set(_VENDOR_RUNNERS) == expected
     # Every registered name must resolve to a runner class in an importable module. Construction is
