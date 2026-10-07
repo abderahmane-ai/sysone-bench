@@ -338,7 +338,6 @@ def test_factory_registers_every_vendor_runner_without_importing_vendor_sdks() -
         "decision-lux-9b",
         "intern-decision-4b",
         "mojev",
-        "djev",
     }
     assert set(_VENDOR_RUNNERS) == expected
     # Every registered name must resolve to a runner class in an importable module. Construction is
