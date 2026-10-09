@@ -190,7 +190,7 @@ def test_choice_decided_keeps_the_model_answer_and_normalizes(
     assert math.fsum(answer["probabilities"].values()) == pytest.approx(1.0, abs=1e-9)
     assert answer["confidence"] == pytest.approx(0.50001)
     assert response["_raw_model"] == {
-        "decisions": [{"status": "decided", "projected_to_argmax": False}]
+        "decisions": [{"status": "decided", "no_option_applied": False}]
     }
     call = engine.calls[0]
     assert call["mode"] == "certified"
@@ -214,7 +214,7 @@ def test_abstained_choice_is_projected_to_the_argmax_option_and_flagged(
     response = runner.predict(STATE, {"intent": CHOICE_QUESTION})
     assert response["answers"]["intent"]["choice"] == "cancel"
     assert response["_raw_model"]["decisions"] == [
-        {"status": "abstained", "projected_to_argmax": True}
+        {"status": "abstained", "no_option_applied": True}
     ]
 
 
@@ -230,7 +230,7 @@ def test_deferred_choice_keeps_its_own_answer_and_is_not_projected(
     response = runner.predict(STATE, {"intent": CHOICE_QUESTION})
     assert response["answers"]["intent"]["choice"] == "info"
     assert response["_raw_model"]["decisions"] == [
-        {"status": "deferred", "projected_to_argmax": False}
+        {"status": "deferred", "no_option_applied": False}
     ]
 
 
@@ -247,7 +247,7 @@ def test_noul_reports_the_yes_probability_whatever_the_status(
     assert response["answers"]["refund_requested"] == {"type": "noul", "noul": 0.93}
     assert isinstance(engine.calls[0]["spec"], FakeYesNo)
     assert response["_raw_model"]["decisions"] == [
-        {"status": "deferred", "projected_to_argmax": False}
+        {"status": "deferred", "no_option_applied": False}
     ]
 
 

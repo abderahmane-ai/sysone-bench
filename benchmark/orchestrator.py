@@ -1004,6 +1004,48 @@ def _validate_payloads(payloads: Sequence[Mapping[str, Any]], rows: Sequence[Any
         canonical_json(row)
 
 
+def _decision_statuses(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any] | None:
+    """Per-split decisions and correct answers by the status an adapter reports in
+    `_raw_model.decisions`, plus the count of choices that had no applicable option.
+
+    Returns None when no row carries statuses; raises when only some rows do or when a row's
+    statuses do not line up one-to-one with its questions.
+    """
+    reported = [
+        row
+        for row in rows
+        if isinstance(row.get("_raw_model"), Mapping) and "decisions" in row["_raw_model"]
+    ]
+    if not reported:
+        return None
+    if len(reported) != len(rows):
+        raise ValueError("adapter reported decision statuses for only some prediction rows")
+    result: dict[str, Any] = {}
+    for split in SPLITS:
+        statuses: dict[str, dict[str, int]] = {}
+        no_option_applied = 0
+        for row in (row for row in rows if row["split"] == split):
+            case_id = row["case_id"]
+            decisions = row["_raw_model"]["decisions"]
+            if not isinstance(decisions, list) or len(decisions) != len(row["questions"]):
+                raise ValueError(f"{case_id}: decision statuses do not match its questions")
+            for question, decision in zip(row["questions"], decisions, strict=True):
+                decision = _json_mapping(decision, f"{case_id} decision")
+                status = _nonempty_text(decision.get("status"), f"{case_id} decision status")
+                qid = question["qid"]
+                entry = statuses.setdefault(status, {"correct": 0, "decisions": 0})
+                entry["decisions"] += 1
+                entry["correct"] += _answer_is_correct(
+                    question, row["answers"][qid], row["expected"][qid]
+                )
+                no_option_applied += decision.get("no_option_applied") is True
+        result[split] = {
+            "no_option_applied": no_option_applied,
+            "statuses": dict(sorted(statuses.items())),
+        }
+    return result
+
+
 def run_all_v2(
     runner_names: Sequence[str],
     manifest_path: Path,
@@ -1090,6 +1132,9 @@ def run_all_v2(
             "suites": _suite_metadata(records, suite_order),
             "timing": {"clock": "time.perf_counter", "unit": "seconds"},
         }
+        statuses = _decision_statuses(predictions)
+        if statuses is not None:
+            metadata["decision_statuses"] = statuses
         summary = {
             "accuracy": accuracy,
             "dataset_version": manifest["dataset_version"],
