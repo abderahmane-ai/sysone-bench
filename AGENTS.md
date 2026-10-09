@@ -78,6 +78,10 @@ Default section order:
 - Published v2.0.0 result: Jev 0.9065, Laya 0.6863, Qwen PCD 0.6048 over 1,240 evaluation decisions. Report at `results/v2/report-20260926/`.
 - Never commit API keys. The Jev key is streamed over stdin and never written to disk in this repo or on the run host.
 - Result JSONs are append-only records: never overwrite a published run, write a new file.
+- Raw run directories live in `results/raw/`, inside the repo but gitignored. `results/` holds
+  published records only. Every run directory is mirrored to the private dataset
+  `saidutta69/sysone-bench-gpu-results` and verified byte-for-byte.
+  Point tooling at the raw root with `--results-root results/raw` or `SYSONE_RESULTS_ROOT`.
 - The v2 ground truth used `human-reviewed-ai-assisted-v1`: one human reviewer corrected an AI draft, with no second reviewer and no adjudication. Do not describe it as two-reviewer or adjudicated.
 
 ## Child DOX Index
@@ -89,4 +93,5 @@ Default section order:
 - `ops/` - isolated remote execution, worker safety, and transient secret transport. Owns the remote execution boundary and its configuration contract.
 - `tests/` - deterministic fake-only regression tests and fixtures. Owns test isolation and evidence.
 - `tools/` - clean-environment command-line entry points. Owns external-package import protection.
+- `webpage/` - static public site for `sysone.sdad.pro`. Owns site copy, visual design, generated site data, GEO files, and Vercel deploy config.
 - Root owns: `run.py`, `compare.py`, `PLAN.md`, `README.md`, env setup.

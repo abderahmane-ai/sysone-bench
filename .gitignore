@@ -6,3 +6,8 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+
+# Raw run directories: 92MB of provenance artifacts. Never committed.
+# Authoritative mirror is the private HF dataset saidutta69/sysone-bench-gpu-results,
+# verified file-by-file. See results/AGENTS.md.
+results/raw/

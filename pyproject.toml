@@ -15,6 +15,21 @@ dependencies = [
 [project.optional-dependencies]
 build = ["datasets"]
 qwen = ["torch", "transformers"]
+# Vendor SDKs imported lazily by runners/vendor/. They are optional because most adapters need only
+# transformers, and the original v2.0.0 release shipped none of these adapters. A clean checkout
+# that runs the full suite needs all of them: tests/test_vendor_common.py imports each adapter
+# module by path, which resolves their top-level SDK imports.
+#
+# `thisthat` is deliberately absent. PyPI's `thisthat` 0.0.1 is an empty placeholder that exports
+# nothing, so pinning it makes the install succeed and the import fail later with a confusing
+# ImportError. The real SDK, like `lavoir`, is installed from vendor source on the run host; the
+# tests that need either one skip when the SDK is absent.
+vendor = [
+  "gliner2",
+  "gliclass",
+  "llm2jev",
+  "peft",
+]
 dev = ["pytest", "ruff", "mypy"]
 
 [tool.pytest.ini_options]

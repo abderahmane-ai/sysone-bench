@@ -1,0 +1,438 @@
+{
+ "emotion-0005": {
+  "final": "fear",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0006": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0018": {
+  "final": "love",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0033": {
+  "final": "love",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0034": {
+  "final": "love",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0037": {
+  "final": "anger",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0039": {
+  "final": "love",
+  "why": "feeling a real emotional connection"
+ },
+ "emotion-0041": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0042": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0043": {
+  "final": "love",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0046": {
+  "final": "anger",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0047": {
+  "final": "love",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0056": {
+  "final": "love",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0059": {
+  "final": "surprise",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0064": {
+  "final": "love",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0065": {
+  "final": "sadness",
+  "why": "self-doubt -> sadness: disappointment in own ability"
+ },
+ "emotion-0072": {
+  "final": "sadness",
+  "why": "determination -> sadness: feeling like crud dominates; determination is coping"
+ },
+ "emotion-0077": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0079": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0080": {
+  "final": "fear",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0081": {
+  "final": "sadness",
+  "why": "guilt -> sadness: guilt sits under sorrow/disappointment"
+ },
+ "emotion-0082": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0083": {
+  "final": "fear",
+  "why": "stress -> fear: stress is anxiety under our criteria"
+ },
+ "emotion-0084": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0085": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0086": {
+  "final": "love",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0088": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0089": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0090": {
+  "final": "joy",
+  "why": "nostalgia -> joy: warm longing reads as delight"
+ },
+ "emotion-0091": {
+  "final": "love",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0092": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0093": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0096": {
+  "final": "love",
+  "why": "arousal -> love: attraction is affection/fondness"
+ },
+ "emotion-0097": {
+  "final": "joy",
+  "why": "laid back pleasant feeling"
+ },
+ "emotion-0099": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0102": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0105": {
+  "final": "joy",
+  "why": "calm -> joy: gentleness and contentment reads as delight"
+ },
+ "emotion-0106": {
+  "final": "love",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0110": {
+  "final": "love",
+  "why": "passion -> love: passion is affection/fondness"
+ },
+ "emotion-0112": {
+  "final": "joy",
+  "why": "nostalgia -> joy: warm longing reads as delight"
+ },
+ "emotion-0114": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0116": {
+  "final": "joy",
+  "why": "hope -> joy: hope reads as delight"
+ },
+ "emotion-0117": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0118": {
+  "final": "sadness",
+  "why": "guilt -> sadness: guilt sits under sorrow/disappointment"
+ },
+ "emotion-0119": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0120": {
+  "final": "fear",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0122": {
+  "final": "fear",
+  "why": "stress -> fear: stress is anxiety under our criteria"
+ },
+ "emotion-0124": {
+  "final": "anger",
+  "why": "agreed -> anger: text says greedy, not agreement"
+ },
+ "emotion-0129": {
+  "final": "anger",
+  "why": "envy -> anger: envy reads as irritation"
+ },
+ "emotion-0131": {
+  "final": "anger",
+  "why": "recklessness -> anger: defiance reads as irritation/fury"
+ },
+ "emotion-0132": {
+  "final": "fear",
+  "why": "dread -> fear: dread is named in our fear criteria"
+ },
+ "emotion-0133": {
+  "final": "anger",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0134": {
+  "final": "love",
+  "why": "empathy -> love: putting oneself in another's shoes is caring"
+ },
+ "emotion-0136": {
+  "final": "anger",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0137": {
+  "final": "anger",
+  "why": "insight -> anger: feeling attacked is irritation"
+ },
+ "emotion-0138": {
+  "final": "love",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0139": {
+  "final": "fear",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0140": {
+  "final": "surprise",
+  "why": "awe -> surprise: amazement is named in our surprise criteria"
+ },
+ "emotion-0141": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0144": {
+  "final": "anger",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0145": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0146": {
+  "final": "anger",
+  "why": "envy -> anger: envy reads as irritation"
+ },
+ "emotion-0147": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0149": {
+  "final": "sadness",
+  "why": "guilt -> sadness: guilt sits under sorrow/disappointment"
+ },
+ "emotion-0155": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0156": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0158": {
+  "final": "fear",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0159": {
+  "final": "surprise",
+  "why": "no affect stated; least-committal class"
+ },
+ "emotion-0160": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0164": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0167": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0168": {
+  "final": "fear",
+  "why": "insecurity -> fear: insecurity is anxiety/worry"
+ },
+ "emotion-0169": {
+  "final": "anger",
+  "why": "text says agitated, not curious"
+ },
+ "emotion-0170": {
+  "final": "sadness",
+  "why": "self-doubt -> sadness: disappointment in own ability"
+ },
+ "emotion-0172": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0175": {
+  "final": "sadness",
+  "why": "distress -> sadness: distress reads as sorrow"
+ },
+ "emotion-0176": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0177": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0178": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0181": {
+  "final": "sadness",
+  "why": "resignation -> sadness: resignation reads as disappointment"
+ },
+ "emotion-0182": {
+  "final": "surprise",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0192": {
+  "final": "sadness",
+  "why": "indecisiveness -> sadness: no positive class; closest is disappointment"
+ },
+ "emotion-0195": {
+  "final": "fear",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0199": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0200": {
+  "final": "surprise",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0201": {
+  "final": "surprise",
+  "why": "curiosity maps to amazement"
+ },
+ "emotion-0202": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0204": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0206": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0207": {
+  "final": "fear",
+  "why": "overwhelm -> fear: overwhelm is anxiety/dread"
+ },
+ "emotion-0208": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0209": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0210": {
+  "final": "joy",
+  "why": "aspiration -> joy: aspiration reads as delight"
+ },
+ "emotion-0211": {
+  "final": "anger",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0213": {
+  "final": "fear",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0214": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0216": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0219": {
+  "final": "joy",
+  "why": "adventure and interest read as delight"
+ },
+ "emotion-0221": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0223": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0224": {
+  "final": "sadness",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0226": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0227": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0229": {
+  "final": "fear",
+  "why": "discomfort -> fear: discomfort is anxiety/worry"
+ },
+ "emotion-0230": {
+  "final": "surprise",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0232": {
+  "final": "surprise",
+  "why": "no affect stated; least-committal class"
+ },
+ "emotion-0234": {
+  "final": "surprise",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0235": {
+  "final": "love",
+  "why": "kept your label, on-taxonomy"
+ },
+ "emotion-0237": {
+  "final": "joy",
+  "why": "kept your label, on-taxonomy"
+ }
+}

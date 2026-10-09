@@ -10,6 +10,70 @@ There was no way to check cross-vendor claims before this. Laya's author had no 
 access, and the published vendor numbers come from different prompts. Two numbers from
 different prompts are not a comparison.
 
+## Expanded panel: 43 of 51 measured
+
+The three-model result below is the sealed v2.0.0 release. Since then the scope was widened to the
+Decision Index 0.2.1 panel, and **43 distinct measurements** are complete against the same sealed
+manifest.
+
+Counts are derived by `ops/panel_coverage.py` from finished run directories, never from a
+hand-kept tally. It verifies every artifact against its own `checksums.sha256` and fingerprints
+the evaluation-phase answers, so repeat runs and identical runs collapse instead of inflating the
+number. It found 46 verified directories but only **43** distinct measurements:
+
+| Runner | Directories | Counted once because |
+| :--- | :--- | :--- |
+| `decider-2b` | `decider-2b-t4-c0`, `decider-2b-t4-d0` | one retried run, both 0.7895 |
+| `tev1-08b` | `tev1-08b-20261002`, `tev1-08b-t4-g1` | the CPU fp32 and T4 fp16 cross-host pair, 0.7629 and 0.7734 |
+| `mini-jev`, `openvons` | two separate runners | byte-identical on all 1240 evaluation decisions |
+
+### Reference: the closed API
+
+| model | entry kind | accuracy | notes |
+|---|---|---:|---|
+| **`Jev 1.13.0`** | closed API | **0.9065** | the reference every open model below is measured against; not a panel entry |
+
+Jev is the vendor's hosted model behind `api.typesafe.ai`, so it is not one of the 51 panel
+entries — the panel is open-weights only. It is listed first because it is the number to beat.
+Its 0.9065 comes from the sealed v2.0.0 release below, measured on the same manifest digest and
+1,240 evaluation decisions as every row in the table underneath.
+
+### Strongest open-weights results
+
+| model | params | entry kind | accuracy | notes |
+|---|---:|---|---:|---|
+| `kev-4b` | 4.66B | LoRA + head | **0.8556** | best open model; runs on 1x T4 |
+| `jpt-9b` | 9.65B | LoRA | 0.8548 | needed a 2-GPU shard, 18 GiB |
+| `jet` | 4.66B | LoRA | 0.8524 | letter-logit readout over a scalar scorer |
+| `jevk5` | 4.66B | LoRA | 0.8508 | letter-logit readout |
+| `intern-decision-4b` | 4.66B | full fine-tune | 0.8460 | remote code manages its own precision |
+| `tev1-4b` | 4.66B | full fine-tune | 0.8460 | see the `tev1-08b` CPU/T4 pair below |
+| `decider-4b` | 4.66B | full fine-tune | 0.8411 | eager path, avoids T4 compile stalls |
+| `neohorse-4b` | 4.66B | head / adapter | 0.8266 | reproduced exactly on a second run |
+| `decision-nox` | 4.66B | head / adapter | 0.8048 | vendor-managed precision |
+| `hopper-g` | 4.66B | LoRA | 0.7911 | matches the vendor's self-reported board score |
+
+The best open model trails the closed reference by 0.0509. The gap to the top three open models
+is 0.0048, so those three are effectively tied at this sample size.
+
+Every row is bf16 on a T4 except `intern-decision-4b`, whose remote code selects its own numerics.
+
+`tev1-08b` is the only model measured on two hosts, which makes it the one direct read on precision
+cost: **0.7629 on CPU fp32 against 0.7734 on T4 fp16**, a 0.0105 gap on identical bytes and one
+pinned revision. `decider-2b` differed 0.7895 on Kaggle against 0.7927 on Colab, but those runs were
+not byte-identical in configuration, so it is a weaker signal.
+
+Full 43-row table with scoring method and provenance flags:
+[`docs/decision-index-panel-coverage.md`](docs/decision-index-panel-coverage.md).
+
+Two caveats carried in the table rather than hidden:
+
+- Rows marked **technique reimpl.** are our reading of a published method over a public base
+  checkpoint, not the authors' code. `mini-jev` and `openvons` share a base and agree on every
+  decision, which is what an insensitive prompt looks like.
+- `pngwn` scored 0.2734 but its vendor never published the prompt format its scorer was trained on.
+  Treat it as unresolved rather than as a measurement of the model.
+
 ## Result
 
 Evaluation split, 952 cases and 1,240 scored decisions. Raw manifest bytes
@@ -27,7 +91,10 @@ correction. Triage is the exception: +0.057 with a permutation p of 0.0627, so w
 claim it. Per-suite numbers, paired intervals and figures are in
 [the report](results/v2/report-20260926/REPORT.md).
 
-![Evaluation accuracy by suite](results/v2/report-20260926/figures/suite-accuracy.png)
+<!-- Figures are withheld from the README while the expanded panel is measured. Numbers only for
+     now. The rendered charts and their source rows stay in
+     results/v2/report-20260926/figures/, regenerated from validated rows by
+     benchmark/graphics.py; nothing there is hand-drawn. -->
 
 ## How the ground truth was made
 
@@ -129,3 +196,8 @@ Apache-2.0, and the public suites follow their upstream licenses recorded in
   url    = {https://github.com/instax-dutta/sysone-bench}
 }
 ```
+
+## Thanks
+
+Special thanks to [MrDragonFox](https://huggingface.co/MrDragonFox) for lending us a DGX Spark,
+on which the larger models in the panel were benchmarked.

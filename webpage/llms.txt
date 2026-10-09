@@ -1,0 +1,112 @@
+# sysone-bench
+
+> An independent head-to-head benchmark of System One decision models. No vendor affiliation, no
+> API access. Every model answers the same sealed 1,190 cases and is graded on 1,240 scored
+> evaluation decisions at seed 42.
+
+Site: https://sysone.sdad.pro/
+Repository: https://github.com/instax-dutta/sysone-bench
+Data: https://sysone.sdad.pro/data/results.json
+Full results as one document: https://sysone.sdad.pro/llms-full.txt
+
+## What this benchmark measures
+
+System One "decision models" answer typed questions about a piece of context rather than generating
+free text. Three question types are used:
+
+- `choice` - select one option from a declared set (2 to 255 criteria)
+- `score` - report an ordinal level on a declared scale
+- `noul` - report P(true) for a binary judgement
+
+Nine suites are measured: agnews, banking77_12, emotion, guardrails, mnli, moderation,
+multilingual_intent, sst5, triage.
+
+## Headline results
+
+49 System One decision models measured. Counts are derived from checksum-verified run
+directories by a script, not maintained by hand.
+
+Closed API reference, not a panel entry:
+
+- **Jev 1.13.0 - 0.9065** (closed API at api.typesafe.ai)
+
+Best open-weights models:
+
+| Rank | Model | Params | Entry kind | Accuracy |
+|---:|---|---:|---|---:|
+| 1 | kev-4b | 4.66B | LoRA + head | 0.8556 |
+| 2 | jpt-9b | 9.65B | LoRA | 0.8548 |
+| 3 | jet | 4.66B | LoRA | 0.8524 |
+| 4 | jevk5 | 4.66B | LoRA | 0.8508 |
+| 5 | intern-decision-4b | 4.66B | full fine-tune | 0.8460 |
+| 6 | tev1-4b | 4.66B | full fine-tune | 0.8460 |
+| 7 | decider-4b | 4.66B | full fine-tune | 0.8411 |
+| 8 | neohorse-4b | 4.66B | head / adapter | 0.8266 |
+| 9 | decision-nox | 4.66B | head / adapter | 0.8048 |
+| 10 | hopper-g | 4.66B | LoRA | 0.7911 |
+
+The best open model trails the closed API reference by **0.0509**.
+
+The top three open models sit within **0.0048** of each other, roughly six decisions out of 1,240.
+At this sample size they are effectively tied and the ordering among them is not meaningful.
+
+## Why these numbers are comparable
+
+Vendor-published leaderboard figures are not comparable to these. They come from different prompts.
+This benchmark fixes the inputs instead:
+
+- One sealed manifest, 1,190 cases and 1,550 typed questions, verified byte-identical before any
+  number is read
+- Manifest sha256 `a938cc2483a592dc84e0d5baac12594491bcaa5b4ceb6b7c3b0def71b36297bd`
+- Logical digest `4272a7a25ebcb324235696ad808544e157a31e3f9c04421da731a08dfb9d5768`
+- Seed 42, dataset version 2.1.0
+- 952 evaluation cases, 1,240 scored decisions per model
+- Every run records a full 40-character model revision, plus base model and base revision for
+  adapter and technique entries, plus device, dtype, serving mode, and the scoring readout used
+
+## Precision effect, measured rather than assumed
+
+One model was run on two hosts against identical bytes and one pinned revision:
+
+- **tev1-08b on CPU in fp32: 0.7629**
+- **tev1-08b on an NVIDIA T4 in fp16: 0.7734**
+
+A difference of 0.0105. Every GPU row is bf16 and every CPU row is fp32, so precision is recorded
+per row instead of treated as constant.
+
+## Coverage, and what is missing
+
+55 verified run directories but **49 distinct measurements**. Repeated runs collapse:
+
+- `decider-2b` - two directories from one retried run
+- `tev1-08b` - two directories, the CPU and T4 cross-host pair
+- `jeff` - four directories from successive readout fixes, highest kept
+- `mini-jev` and `openvons` - two separate runner names producing byte-identical answers on all
+  1,240 evaluation decisions, sharing base checkpoint `Qwen/Qwen3-4B-Instruct-2507` at revision
+  `cdbee75f17c01a7cc42f958dc650907174af0554`
+
+Three entries sit outside the measured scope, each with a recorded reason:
+
+| Entry | Reason |
+|---|---|
+| winnow-e4b | Published solely as GGUF; requires a different runtime |
+| clm-v0.1-8b | Contrastive reranker scoring state-answer pairs, not typed decisions |
+| winnow-12b | Published solely as GGUF; 22.3 GiB fits current hardware but needs a different runtime |
+
+`decision-lux-9b` (0.8484), `kev-9b` (0.8290) and `jeff` (0.6855) were previously excluded and are now measured. The scope is 49 entries, all 49 measured.
+
+## Caveats stated plainly
+
+- **Ground truth, plainly.** In version `2.0.0` one human reviewer read every case and corrected an
+  AI draft of every answer, with no second reviewer and no adjudication. Version `2.1.0` re-anchors
+  the gold: agnews, banking77_12, mnli and sst5 adopt the public source label directly; emotion keeps
+  a per-case human decision on each of the 109 disagreements with the published label, still
+  single-reviewed, so no inter-annotator statistic. The four synthetic suites still have no public
+  source. Corrected labels are rescored from the stored answers; no model was re-run.
+- **Rows tagged "technique reimplementation"** are our reading of a published method over a public
+  base checkpoint, not the authors' code. They set `technique_reimplementation: true` and
+  `vendor_code_executed: false`.
+- **pngwn scored 0.2734** but its vendor never published the prompt format its scorer was trained
+  on. It is recorded as unresolved rather than as a measurement of the model.
+- **hopper-g at 0.7911** is the one model here with an independently published score to compare
+  against, and the two agree closely. That is the only external validation available for this panel.

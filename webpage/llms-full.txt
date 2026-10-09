@@ -1,0 +1,242 @@
+# sysone-bench, full results
+
+> The complete, self-contained content of https://sysone.sdad.pro/ in one file. Every number below
+> is generated from the same checksum-verified run directories the site renders, so this document
+> and the site cannot disagree. Source of truth: https://sysone.sdad.pro/data/results.json
+
+Site: https://sysone.sdad.pro/
+Repository: https://github.com/instax-dutta/sysone-bench
+
+## What was measured
+
+System One decision models answer typed questions about a piece of context rather than
+generating free text. Three question types are used:
+
+- `choice`: select one option from a declared set of 2 to 255 criteria
+- `score`: report an ordinal level on a declared scale
+- `noul`: report P(true) for a binary judgement
+
+One sealed manifest of 1,190 cases yields 952 evaluation cases,
+which together produce 1,240 scored evaluation decisions for every model at seed
+42. The reported metric is accuracy over those 1,240 scored decisions.
+
+## Headline result
+
+- Best open-weights model: **decider-4b** at **0.8581**
+- Closed-API reference: **Jev 1.13.0 0.9065**
+- Gap between them: **0.0484**
+- Open-weights models measured: **49**
+- Nine suites: agnews, banking77_12, emotion, guardrails, mnli, moderation, multilingual_intent, sst5, triage
+
+## Full ranking, all measurements
+
+Ranked by accuracy. The closed-API reference is listed separately above and is never merged
+into this open-weights ranking.
+
+| # | Model | Accuracy | Weights | Pinned revision | Scoring |
+|---|---|---|---|---|---|
+| 1 | `decider-4b` | 0.8581 | `Mapika/decider-4b` | `eb5fbdfc9448` | vendor readout |
+| 2 | `decision-lux-9b` | 0.8484 | `llm-semantic-router/Decision-1.0-Lux-9B` | `2064c84daf59` | vendor readout |
+| 3 | `jet` | 0.8452 | `michaljach/jet` | `fbc3d2daa679` | vendor readout |
+| 4 | `kev-4b` | 0.8444 | `jaredpalmer/kev-4b` | `6cfce5c2fa4b` | vendor readout |
+| 5 | `jpt-9b` | 0.8379 | `kirp/jpt-9b` | `b447cc7ee105` | vendor readout |
+| 6 | `intern-decision-4b` | 0.8315 | `internlm/Intern-Decision-4B` | `0e5e6aa7d6d7` | vendor readout |
+| 7 | `kev-9b` | 0.8290 | `jaredpalmer/kev-9b` | `db029f08b290` | vendor readout |
+| 8 | `jevk5` | 0.8282 | `alibiserikbay/JevK5` | `c4f7fdb3aeab` | vendor readout |
+| 9 | `neohorse-4b` | 0.8282 | `TokenRhythm/NeoHorse-Jev-4B` | `434cb21d3a99` | vendor readout |
+| 10 | `jpt-4b` | 0.8274 | `kirp/jpt-4b` | `78312f855b8b` | vendor readout |
+| 11 | `tev1-4b` | 0.8242 | `togethercomputer/Tev1-4B-experimental` | `0b7becf017da` | vendor readout |
+| 12 | `decision-nox` | 0.8000 | `llm-semantic-router/Decision-1.0-Nox` | `7f65e1db2c55` | vendor readout |
+| 13 | `decider-2b` | 0.7976 | `Mapika/decider-2b` | `533964dae8be` | vendor readout |
+| 14 | `this-that-12` | 0.7871 | `flock-io/this-that-model-1.2` | `c4d1c30b8d51` | vendor readout |
+| 15 | `decision-eos` | 0.7815 | `llm-semantic-router/Decision-1.0-Eos-0.8B` | `bbdc2221d0ec` | vendor readout |
+| 16 | `hopper-g` | 0.7798 | `HopitAI/hopper-g` | `d60a1d6ca3f3` | option_letter_logits |
+| 17 | `lumma-fev-4b` | 0.7758 | `FrontiersMind/Lumma-fev-4b` | `6fea60ae613c` | vendor readout |
+| 18 | `lumma-fev-9b` | 0.7742 | `FrontiersMind/Lumma-fev-9b` | `51c4b084f40b` | vendor readout |
+| 19 | `kev-08b` | 0.7726 | `jaredpalmer/kev-0.8b` | `bf75a6a8848e` | vendor readout |
+| 20 | `intern-decision-2b` | 0.7718 | `internlm/Intern-Decision-2B` | `8797836c65fc` | vendor readout |
+| 21 | `nimble-v2` | 0.7702 | `bespokelabs/Bespoke-Nimble-9B-v2` | `4b8c04d1ac2c` | option_letter_logits |
+| 22 | `decision-sol` | 0.7694 | `llm-semantic-router/Decision-1.0-Sol` | `fc210c8fcc7f` | vendor readout |
+| 23 | `jpt-08b` | 0.7645 | `kirp/jpt-0.8b` | `1431c0509bbc` | vendor readout |
+| 24 | `tev1-08b` | 0.7637 | `togethercomputer/Tev1-0.8B-experimental` | `6bb2dff14b38` | vendor readout |
+| 25 | `mini-jev` | 0.7621 | `Qwen/Qwen3-4B-Instruct-2507` | `cdbee75f17c0` | per_option_conditional_logprob (reimpl.) |
+| 26 | `bosun-17b` | 0.7452 | `Hanno-Labs/bosun-v3.1-1.7b` | `1d8dc82a20e4` | vendor readout |
+| 27 | `metask` | 0.7395 | `wayfind/metask-jev-4b-policy-mix` | `ea20fe85b287` | per_option_conditional_logprob |
+| 28 | `intern-decision-08b` | 0.7242 | `internlm/Intern-Decision-0.8B` | `85a0cc5a99d6` | vendor readout |
+| 29 | `lavoir` | 0.7105 | `moganai/lavoir` | `4c5eaeb99b23` | vendor readout |
+| 30 | `decision-kai` | 0.7089 | `llm-semantic-router/Decision-1.0-Kai` | `69aef4060caf` | vendor readout |
+| 31 | `bosun-06b` | 0.7000 | `Hanno-Labs/bosun-v3.1-0.6b` | `1d8b6f9611f9` | vendor readout |
+| 32 | `laya` | 0.6976 | `convaiinnovations/laya` | `55cf4c4ebb4e` | vendor readout |
+| 33 | `gliner-decide` | 0.6927 | `fastino/GLiNER2.5-Decide` | `5a7adf72a23b` | vendor readout |
+| 34 | `jeff` | 0.6855 | `knowledgator/gliformer-large-v1` | `d0a4e53d09ce` | vendor readout (reimpl.) |
+| 35 | `gliner-base` | 0.6355 | `fastino/gliner2.5-base-v1` | `ca9062476407` | vendor readout |
+| 36 | `decision-lex` | 0.5968 | `llm-semantic-router/decision-1.0-lex` | `1f9750a75ae9` | vendor readout |
+| 37 | `gliner-multi` | 0.5718 | `fastino/gliner2.5-multi-v1` | `2ca71aafb344` | vendor readout |
+| 38 | `lev` | 0.5637 | `interfaze-ai/lev` | `7bdc748dffeb` | option_letter_logits |
+| 39 | `jobe` | 0.5516 | `Qwen/Qwen3.5-4B-Base` | `1001bb4d826a` | per_option_conditional_logprob (reimpl.) |
+| 40 | `verdict` | 0.5516 | `heman10x/rlcd-modernbert-151m` | `8af2496eb63c` | vendor readout |
+| 41 | `mojev` | 0.5435 | `MoLeMo-Lab/mojev` | `0c8695b6252f` | vendor readout |
+| 42 | `gliner-small` | 0.5363 | `fastino/gliner2.5-small-v1` | `7132dc4561c3` | vendor readout |
+| 43 | `julia-1` | 0.5258 | `SupersonicLabs/Julia-1` | `a85b127321d5` | vendor readout |
+| 44 | `lumma-fev-06b` | 0.5145 | `FrontiersMind/Lumma-fev-0.6b` | `59272e2c1050` | vendor readout |
+| 45 | `lumma-fev-01b` | 0.4290 | `FrontiersMind/Lumma-fev-0.1b` | `085f4705aa86` | vendor readout |
+| 46 | `harsha` | 0.4290 | `Qwen/Qwen2.5-1.5B` | `8faed761d45a` | per_option_conditional_logprob (reimpl.) |
+| 47 | `lfm2600` | 0.3758 | `monotykamary/LFM2.5-2.6B-RLCD` | `31455458983b` | per_option_conditional_logprob |
+| 48 | `lfm350` | 0.3492 | `notnotsamuel/LFM2.5-350M-RLCD` | `deb589d803d1` | per_option_conditional_logprob |
+| 49 | `pngwn` | 0.2597 | `pngwn/system-one-qwen3.5-4b-scorer-v2b` | `3ec7785bf6aa` | per_option_scalar_head_softmax |
+
+## Per-suite accuracy
+
+Aggregate accuracy hides the fact that a model can be excellent at moderation and useless at
+intent routing. Every model is scored on all nine suites.
+
+| Model | agnews | banking77_12 | emotion | guardrails | mnli | moderation | multilingual_intent | sst5 | triage |
+|---|---|---|---|---|---|---|---|---|---|
+| `decider-4b` | 92.5 | 91.7 | 79.2 | 83.3 | 84.2 | 94.4 | 100.0 | 48.3 | 94.3 |
+| `decision-lux-9b` | 84.4 | 88.5 | 73.4 | 97.9 | 91.7 | 93.1 | 97.5 | 52.5 | 90.1 |
+| `jet` | 89.4 | 90.6 | 79.2 | 83.3 | 82.5 | 93.1 | 96.7 | 49.2 | 92.7 |
+| `kev-4b` | 88.1 | 92.7 | 80.7 | 91.7 | 80.0 | 91.0 | 95.8 | 45.0 | 92.7 |
+| `jpt-9b` | 88.1 | 89.6 | 78.6 | 97.9 | 75.8 | 93.8 | 84.2 | 51.7 | 92.7 |
+| `intern-decision-4b` | 87.5 | 89.6 | 80.7 | 79.2 | 73.3 | 88.9 | 100.0 | 45.8 | 95.3 |
+| `kev-9b` | 87.5 | 92.7 | 81.2 | 80.2 | 84.2 | 80.6 | 93.3 | 51.7 | 91.1 |
+| `jevk5` | 78.1 | 87.5 | 81.2 | 83.3 | 76.7 | 93.8 | 100.0 | 47.5 | 92.7 |
+| `neohorse-4b` | 89.4 | 91.7 | 78.1 | 99.0 | 85.0 | 90.3 | 71.7 | 47.5 | 91.7 |
+| `jpt-4b` | 88.8 | 84.4 | 79.7 | 94.8 | 74.2 | 91.0 | 80.8 | 54.2 | 92.2 |
+| `tev1-4b` | 84.4 | 89.6 | 79.7 | 94.8 | 82.5 | 93.8 | 84.2 | 45.8 | 87.0 |
+| `decision-nox` | 84.4 | 87.5 | 73.4 | 84.4 | 78.3 | 90.3 | 93.3 | 37.5 | 88.5 |
+| `decider-2b` | 89.4 | 90.6 | 70.8 | 63.5 | 79.2 | 88.2 | 91.7 | 46.7 | 90.6 |
+| `this-that-12` | 80.6 | 88.5 | 70.3 | 58.3 | 78.3 | 91.0 | 94.2 | 52.5 | 88.5 |
+| `decision-eos` | 86.2 | 82.3 | 65.6 | 86.5 | 75.0 | 86.1 | 90.8 | 40.8 | 89.1 |
+| `hopper-g` | 82.5 | 81.2 | 81.2 | 77.1 | 59.2 | 88.9 | 89.2 | 39.2 | 90.6 |
+| `lumma-fev-4b` | 95.6 | 97.9 | 60.9 | 58.3 | 73.3 | 94.4 | 81.7 | 33.3 | 93.8 |
+| `lumma-fev-9b` | 95.6 | 99.0 | 62.0 | 78.1 | 76.7 | 92.4 | 52.5 | 40.8 | 94.3 |
+| `kev-08b` | 86.9 | 92.7 | 68.2 | 90.6 | 50.8 | 87.5 | 90.0 | 41.7 | 87.0 |
+| `intern-decision-2b` | 86.9 | 80.2 | 76.6 | 77.1 | 66.7 | 79.9 | 97.5 | 33.3 | 87.5 |
+| `nimble-v2` | 80.6 | 44.8 | 76.0 | 97.9 | 55.0 | 93.1 | 92.5 | 44.2 | 93.2 |
+| `decision-sol` | 79.4 | 84.4 | 68.2 | 72.9 | 80.0 | 91.0 | 84.2 | 40.0 | 88.0 |
+| `jpt-08b` | 83.1 | 81.2 | 72.4 | 92.7 | 60.0 | 87.5 | 74.2 | 42.5 | 89.1 |
+| `tev1-08b` | 85.0 | 81.2 | 66.7 | 61.5 | 67.5 | 87.5 | 100.0 | 49.2 | 83.3 |
+| `mini-jev` | 86.2 | 71.9 | 72.9 | 84.4 | 58.3 | 94.4 | 80.0 | 45.0 | 83.9 |
+| `bosun-17b` | 83.1 | 97.9 | 55.2 | 69.8 | 65.8 | 86.1 | 99.2 | 26.7 | 88.5 |
+| `metask` | 88.1 | 80.2 | 78.1 | 51.0 | 53.3 | 88.9 | 79.2 | 39.2 | 86.5 |
+| `intern-decision-08b` | 85.6 | 79.2 | 71.9 | 34.4 | 51.7 | 88.2 | 97.5 | 33.3 | 87.5 |
+| `lavoir` | 88.1 | 82.3 | 69.8 | 72.9 | 43.3 | 79.2 | 56.7 | 38.3 | 92.2 |
+| `decision-kai` | 75.6 | 71.9 | 63.5 | 88.5 | 63.3 | 81.9 | 78.3 | 20.0 | 88.5 |
+| `bosun-06b` | 78.1 | 89.6 | 53.6 | 51.0 | 60.0 | 81.2 | 100.0 | 25.0 | 86.5 |
+| `laya` | 93.1 | 76.0 | 67.7 | 76.0 | 61.7 | 75.7 | 45.0 | 29.2 | 87.5 |
+| `gliner-decide` | 73.8 | 87.5 | 66.7 | 78.1 | 36.7 | 74.3 | 63.3 | 49.2 | 87.5 |
+| `jeff` | 73.1 | 86.5 | 64.6 | 57.3 | 63.3 | 83.3 | 51.7 | 41.7 | 84.9 |
+| `gliner-base` | 73.8 | 78.1 | 69.8 | 59.4 | 60.0 | 61.8 | 61.7 | 38.3 | 64.1 |
+| `decision-lex` | 71.9 | 66.7 | 57.3 | 30.2 | 39.2 | 72.9 | 74.2 | 26.7 | 77.6 |
+| `gliner-multi` | 72.5 | 81.2 | 57.8 | 61.5 | 56.7 | 22.2 | 84.2 | 30.8 | 55.7 |
+| `lev` | 55.6 | 79.2 | 29.7 | 93.8 | 33.3 | 80.6 | 22.5 | 53.3 | 72.9 |
+| `jobe` | 84.4 | 39.6 | 72.4 | 91.7 | 33.3 | 48.6 | 33.3 | 36.7 | 46.9 |
+| `verdict` | 61.9 | 77.1 | 51.0 | 45.8 | 40.8 | 61.1 | 50.8 | 32.5 | 68.8 |
+| `mojev` | 63.1 | 77.1 | 35.4 | 29.2 | 46.7 | 72.9 | 45.8 | 30.8 | 78.1 |
+| `gliner-small` | 76.9 | 75.0 | 60.9 | 56.2 | 63.3 | 28.5 | 53.3 | 29.2 | 43.2 |
+| `julia-1` | 54.4 | 84.4 | 61.5 | 30.2 | 33.3 | 38.2 | 75.0 | 30.0 | 60.4 |
+| `lumma-fev-06b` | 95.6 | 93.8 | 62.5 | 65.6 | 32.5 | 27.8 | 6.7 | 25.8 | 49.0 |
+| `lumma-fev-01b` | 90.6 | 68.8 | 54.2 | 27.1 | 35.8 | 28.5 | 0.0 | 20.0 | 43.2 |
+| `harsha` | 55.6 | 26.0 | 64.6 | 70.8 | 33.3 | 26.4 | 28.3 | 34.2 | 38.0 |
+| `lfm2600` | 25.0 | 30.2 | 21.9 | 54.2 | 34.2 | 68.8 | 16.7 | 36.7 | 51.6 |
+| `lfm350` | 43.8 | 12.5 | 52.6 | 70.8 | 42.5 | 27.1 | 16.7 | 20.8 | 24.5 |
+| `pngwn` | 33.8 | 26.0 | 7.8 | 70.8 | 38.3 | 27.1 | 16.7 | 9.2 | 22.9 |
+
+## How to read the numbers
+
+Precision is not assumed away. One model, `tev1-08b`, was measured on both paths on identical
+bytes at one pinned revision:
+
+| Path | Precision | Accuracy |
+|---|---|---|
+| CPU | fp32 | 0.7629 |
+| T4 | fp16 | 0.7734 |
+
+The difference is 0.0105. Every other GPU row on the site is bf16 and every CPU row is fp32.
+
+## Counting rule
+
+55 run directories were verified by checksum but resolve to
+**49 distinct measurements**. Repeated runs collapse:
+
+- `decider-2b`: 2 directories, one model (`decider-2b-t4-c0-v210`, `decider-2b-t4-d0-v210`)
+- `tev1-08b`: 2 directories, one model (`tev1-08b-20261002-v210`, `tev1-08b-t4-g1-v210`)
+- `jeff`: 4 directories from successive readout fixes, one model (highest kept)
+- `mini-jev` and `openvons`: byte-identical answers on all 1,240 decisions, so they count once
+
+A measurement whose checksum fails is dropped rather than published.
+
+## Not measured, and why
+
+Three entries sit outside the measured scope, each with a recorded reason:
+
+| Entry | Reason |
+|---|---|
+| `winnow-e4b` | Published solely as GGUF; requires a different runtime |
+| `clm-v0.1-8b` | Contrastive reranker scoring state-answer pairs, not typed decisions |
+| `winnow-12b` | Published solely as GGUF; 22.3 GiB fits current hardware but needs a different runtime |
+
+`decision-lux-9b` (0.8484), `kev-9b` (0.8290) and `jeff` (0.6855) were previously excluded and are now measured. The scope is 49 entries, all 49 measured.
+
+## Caveats, stated plainly
+
+- **Six of these 49 measurements carry an unresolved readout caveat.** `per_option_conditional_logprob`
+  scores each declared option independently. For a model trained to answer with label codes
+  restricted in the next-token distribution, that is a different function of the same weights
+  rather than a different implementation of the same one, and it can under-report the model.
+  Affected rows: `mini-jev`, `metask`, `jobe`, `harsha`, `lfm2600`, `lfm350`. Confirmed for `lev`, whose authors
+  measured 0.980 on banking77 in-distribution against our 0.7292 out-of-distribution:
+  <https://huggingface.co/interfaze-ai/lev/discussions/1>. We have not confirmed the same expectation for the other flagged
+  rows, so treat them as unqualified rather than known-low. No number has been changed and no
+  model has been re-run for this caveat.
+
+- **Ground truth, plainly.** In version `2.0.0` one human reviewer read every case and corrected
+  an AI draft of every answer, with no second reviewer and no adjudication. Version `2.1.0`
+  re-anchors the gold: agnews, banking77_12, mnli and sst5 adopt the public source label
+  directly; emotion keeps a per-case human decision on each of the 109 disagreements with the
+  published label, still single-reviewed, so no inter-annotator statistic. The four synthetic
+  suites still have no public source. Corrected labels are rescored from the stored answers;
+  no model was re-run.
+- **Technique reimplementations** are our reading of a published method over a public base
+  checkpoint, not the authors' own code. They set `technique_reimplementation: true` and
+  `vendor_code_executed: false`. Treat them accordingly when citing a specific row.
+- **The closed-API reference is one model at one version.** It is a reference point, not a
+  claim about the vendor's current shipping model.
+- **No composite score exists.** There is deliberately no averaged cross-suite figure and no
+  radar summary, because a single number across nine unlike suites hides more than it shows.
+
+## Provenance
+
+- Manifest sha256: `0d21a64c6b61b6be7b49050dbd89f89f934912a7b586734e475308e9c9422ea2`
+- Logical digest: `4272a7a25ebcb324235696ad808544e157a31e3f9c04421da731a08dfb9d5768`
+- Dataset version: `2.1.0`
+- Seed: `42`
+
+Reproduce with the repository at https://github.com/instax-dutta/sysone-bench
+
+## Machine-readable data
+
+`https://sysone.sdad.pro/data/results.json` serves the same content as JSON with
+`Access-Control-Allow-Origin: *`. Top-level keys:
+
+- `cases`: int
+- `datasetVersion`: str
+- `decisions`: int
+- `distinctMeasurements`: int
+- `duplicates`: dict
+- `evaluationCases`: int
+- `logicalDigest`: str
+- `manifestSha256`: str
+- `measurements`: array[49]
+- `readoutCaveat`: dict
+- `referenceClosedApi`: dict
+- `runDirectoriesVerified`: int
+- `scopeTotal`: int
+- `seed`: int
+- `suites`: array[9]
+
+Each entry in `measurements` carries `runner`, `model`, `revision`, `accuracy`, `device`,
+`dtype`, `cases`, `decisions`, `suites`, `latencyP50`, and the provenance flags
+`techniqueReimplementation`, `vendorCodeExecuted`, `sharding`, `singleDevice`. Coverage is
+derived by `ops/panel_coverage.py` in the repository, which is the only thing permitted to
+produce these counts.

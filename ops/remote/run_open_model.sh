@@ -16,6 +16,14 @@ MODEL_CACHE="${SYSONE_BENCH_MODEL_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/sysone-
 MANIFEST_PATH="${SYSONE_BENCH_MANIFEST:-$WORKSPACE_ROOT/datasets/v2/manifest.jsonl}"
 MANIFEST_CHECKSUM_PATH="${SYSONE_BENCH_MANIFEST_CHECKSUM:-$WORKSPACE_ROOT/datasets/v2/manifest.sha256}"
 PROJECT_IMAGE="${SYSONE_BENCH_IMAGE:-sysone-bench-v2:cpu}"
+# Worker sizing is operator configuration, not a repository default. The defaults below are the
+# documented contract for a shared host. An operator who has verified the host is quiet may widen
+# SYSONE_BENCH_WORKER_CPUSET and SYSONE_BENCH_WORKER_CPUS together; preflight re-derives both from
+# the same environment variables and refuses a cpuset that is not a subset of this process's
+# affinity, that exceeds half the host, or that runs on a host already loaded by other workloads.
+WORKER_CPUSET="${SYSONE_BENCH_WORKER_CPUSET:-0-3}"
+WORKER_CPUS="${SYSONE_BENCH_WORKER_CPUS:-4}"
+WORKER_MEMORY="${SYSONE_BENCH_WORKER_MEMORY:-12g}"
 PREFLIGHT_PYTHON="/usr/bin/python3"
 VENV_PYTHON="/workspace/.venv/bin/python"
 V2_MODULE="benchmark.orchestrator"
@@ -23,7 +31,9 @@ HOST_UID="$(/usr/bin/id -u)"
 HOST_GID="$(/usr/bin/id -g)"
 
 usage() {
-    printf '%s\n' "usage: run_open_model.sh --run-id <id> --model <laya|qwen|router>" >&2
+    printf '%s\n' "usage: run_open_model.sh --run-id <id> --model <runner-name>" >&2
+    printf '%s\n' "  runner-name is any name registered in benchmark.orchestrator.default_runner_factory" >&2
+    printf '%s\n' "  (laya, qwen, router, and vendor adapter names); laya|qwen|router keep their aliases" >&2
     exit 2
 }
 
@@ -49,10 +59,12 @@ done
 
 [[ "$run_id" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]] || usage
 [[ "$run_id" != "." && "$run_id" != ".." ]] || usage
-case "$model" in
-    laya|qwen|router) ;;
-    *) usage ;;
-esac
+# The three original models keep their aliases; any other name must be a runner registered in
+# benchmark.orchestrator.default_runner_factory, which benchmark.orchestrator validates. Rejecting
+# unknown names here keeps the failure at argument parsing instead of mid-run.
+if [[ -z "$model" ]]; then
+    usage
+fi
 if [[ "$HOST_UID" == "0" ]]; then
     printf '%s\n' "refusing to launch as root" >&2
     exit 1
@@ -186,6 +198,9 @@ case "$model" in
     laya) model_arg=laya ;;
     qwen) model_arg=qwen ;;
     router) model_arg=laya-router ;;
+    # Vendor adapters are registered in benchmark.orchestrator.default_runner_factory under their
+    # own runner name, so any other name passes through unchanged instead of needing a case arm.
+    *) model_arg="$model" ;;
 esac
 if ! validate_owned_run; then
     exit 1
@@ -196,10 +211,10 @@ docker_command=(
     --name "$container_name"
     --label com.sysone-bench.owned=true
     --label "com.sysone-bench.run-id=$run_id"
-    --cpus=4
-    --memory=12g
-    --memory-swap=12g
-    --cpuset-cpus=0-3
+    --cpus="$WORKER_CPUS"
+    --memory="$WORKER_MEMORY"
+    --memory-swap="$WORKER_MEMORY"
+    --cpuset-cpus="$WORKER_CPUSET"
     --user "$HOST_UID:$HOST_GID"
     -v "$run_dir:/results/$run_id"
     -v "$MODEL_CACHE:/models"

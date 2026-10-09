@@ -5,14 +5,28 @@
 - Own all run outputs, head-to-head comparisons, and published reports, including `results/v2/`.
 - Result files are records. Never edit or overwrite one; write a new file.
 - `benchmark/` provides exclusive storage primitives, but this contract governs all result paths and records.
+- `results/raw/` holds the raw V2 run directories and is **gitignored**. 46 run directories, 455
+  files, 92MiB, CPU under `cpu/runs/` and GPU under `gpu/`, plus the partial `colab/` salvage.
+- It is gitignored because git retains every blob permanently. Under the append-only rule, committing
+  it would add roughly 2MiB of unrecoverable history per future run, and deleting it later would not
+  reclaim the space. `.git` is under 3MiB and must stay that way.
+- Point tooling at that root with `--results-root results/raw` or `SYSONE_RESULTS_ROOT`. Never
+  hardcode a home-directory path into a script.
 
 # Local Contracts
 - Legacy run file: `run_<runner-name>_<YYYYMMDD-HHMMSS>.json` with keys
   `meta`, `suites`, `speed_scaling`, `gating`; never rewrite it through the v2 path.
-- V2 run directory: one exclusive run-ID directory containing `metadata.json`,
+- V2 run directory: one exclusive run-ID directory on the results root, containing `metadata.json`,
   `predictions.jsonl`, `summary.json`, `usage.json`, and `checksums.sha256`.
 - `predictions.jsonl` binds exactly once to metadata suite IDs, case IDs, order indices, and split membership in suite order with calibration before evaluation. Each row's confidence must equal the recomputed normalized-answer confidence through type-sensitive JSON equality, and row plus suite latency values must be finite and non-negative. Summary `cases` and `decisions` fields are exact non-negative JSON integers; summary accuracies are finite numeric values, while integer `0` and `1` remain valid. Summary metrics use evaluation only; calibration remains in predictions and separate usage counters.
 - V2 comparison directory: one exclusive comparison-ID directory under a requested output root that is disjoint from both source run directories, containing `comparison.json` and `checksums.sha256`. Source trees are rejected before metadata or descendant reads if any file or directory is symlinked. Legacy root-level `compare_<a>_vs_<b>.json` files remain historical and are never replaced.
+- `results/raw/` is the working copy; the authoritative mirror is the private dataset
+  `saidutta69/sysone-bench-gpu-results`, one top-level entry per run. All 46 run directories plus the
+  `colab/` salvage are mirrored, verified file-by-file at 352/352 identical with zero mismatches on
+  2026-10-04. `gpu/from-bundle` is deliberately absent because it failed checksum verification.
+- Every run directory must exist in the mirror before the working copy may be discarded.
+- Verify the mirror byte-for-byte, not by presence alone: compare each local file's sha256 against
+  the remote `resolve/main` object before trusting it.
 - `meta` must include: runner name, model/version pin, timestamp, device,
   seed, question-source hash (to prove byte-identical questions).
 - Legacy `compare.py` output: `compare_<a>_vs_<b>.json`. Never hand-edit.

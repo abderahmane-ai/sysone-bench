@@ -1,0 +1,51 @@
+# All crawlers welcome, including AI answer engines.
+# This project exists to be cited accurately; refusing AI crawlers would defeat the point.
+
+User-agent: *
+Allow: /
+
+# Answer engines and dataset harvesters, explicitly.
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+# Structured data for citation
+User-agent: JSONBot
+Allow: /
+
+Sitemap: https://sysone.sdad.pro/sitemap.xml
